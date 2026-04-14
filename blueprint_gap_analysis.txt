@@ -1,0 +1,271 @@
+# Blueprint vs Project — Gap Analysis
+### Investment Intelligence Blueprint Master v3 · April 2026
+
+---
+
+## Executive Summary
+
+Your project is an **excellent Phase 1–3.5 implementation** — the data foundation, observation dashboard, scoring engine, and agentic monitor are all live. However the blueprint spans **8 Phases + 3.5 across 24-36 months**, so there are significant planned phases not yet built. This document maps every blueprint requirement to its current implementation status.
+
+---
+
+## 🟢 What's Fully Implemented (Ahead of Schedule)
+
+### Phase 1 — Data Infrastructure ✅ (adapted)
+| Blueprint Spec | Current Implementation | Status |
+|---|---|---|
+| PostgreSQL + TimescaleDB | SQLite via `better-sqlite3` (pragmatic swap) | ✅ Working |
+| 500+ stocks, 5yr history | 20 seeded stocks in `stocks` + `fundamentals` tables | ⚠️ Scale gap |
+| NSE/BSE + yfinance data | `server/services/yahooFinance.js` + `priceUpdater.js` cron | ✅ |
+| Macro data (RBI, FII, VIX) | `macro_data` table, seeded, `/api/macro` route | ✅ |
+| News feed | `server/services/newsApi.js` + Google RSS fallback | ✅ |
+| FastAPI REST API | Express.js (Node equivalent) + 15 routes | ✅ |
+| Data quality validation | Basic null handling in scoring engine | ⚠️ Minimal |
+| ETL / cron scheduling | `server/jobs/priceUpdater.js` | ⚠️ Prices only |
+
+### Phase 2 — Observation Dashboard ✅
+| Blueprint Spec | Current Implementation | Status |
+|---|---|---|
+| Framework gauges (BSS/VRS/MOS/STI) | `Watchlist.jsx` circular score cards | ✅ |
+| Stock screener with filters | Filter by signal (ALL/BUY/WATCH/AVOID) + search | ⚠️ Basic |
+| Watchlist manager | `Watchlist.jsx` with ticker tabs | ✅ |
+| Market overview (Nifty, VIX, FII, PE) | `Dashboard.jsx` ticker bar + stat tiles | ✅ |
+| Decision Notes UI | `DecisionNotes.jsx` with full form + review | ✅ |
+| Sector comparison | Side-by-side in Watchlist table | ⚠️ No 5-stock compare |
+| PDF export | ❌ Not implemented | ❌ |
+| Auth (Supabase) | ❌ No authentication | ❌ |
+| Drag-and-drop watchlist | ❌ No dnd-kit | ❌ |
+
+### Phase 3 — Reasoning Engine ✅
+| Blueprint Spec | Current Implementation | Status |
+|---|---|---|
+| IOS / Composite Score calculator | `server/scoring/allScores.js` — 5-framework composite | ✅ |
+| Rule-based decision engine | `server/engine/rulesEngine.js` — 18 IF-THEN rules | ✅ |
+| Buy decision tree | `RulesEngine.jsx` + `/api/alerts/decision-tree` | ✅ |
+| Narrative Risk Scoring (NRS) | `NarrativeRisk.jsx` + `server/routes/narrative.js` | ✅ |
+| Alert system | `/api/alerts/run` — critical/high/opportunity | ✅ |
+| Thesis generator (Claude API) | `server/routes/agentic.js` generateAgenticInsight() | ⚠️ Partial — uses demo key |
+| SHAP explainability | ❌ Not implemented (would need Python ML layer) | ❌ |
+| XGBoost return prediction | ❌ Not implemented | ❌ |
+| MLflow experiment tracking | ❌ Not implemented | ❌ |
+
+### Phase 3.5 — Agentic AI Layer ✅
+| Blueprint Spec | Current Implementation | Status |
+|---|---|---|
+| Portfolio monitor (15-min) | `priceUpdater.js` cron (5-min intervals) | ⚠️ Price only |
+| Weekly intelligence brief | `AgenticMonitor.jsx` + `/api/agentic/briefing` | ✅ |
+| Auto-triggered thesis reviews | `/api/agentic/review-triggers` | ✅ |
+| Promoter activity monitor | Pledge rule in `rulesEngine.js` + alerts | ⚠️ From DB, not live BSE scraper |
+| Review note drafter | `generateAgenticInsight()` in agentic route | ⚠️ Template-based, not LLM |
+| Human-in-the-loop approval | ✅ All actions require manual confirmation | ✅ |
+| LangChain agent framework | ❌ Not implemented — custom logic instead | ❌ |
+| Audit log per agent action | ❌ Not persisted | ❌ |
+
+---
+
+## 🟡 Partially Implemented
+
+### Framework Scoring — Depth Gaps
+
+**BSS Formula (Blueprint spec vs actual)**
+```
+Blueprint:  BSS = (0.25×Revenue) + (0.20×Margin) + (0.20×Debt) + (0.15×Moat) + (0.10×Management) + (0.10×Industry)
+Actual:     scoring/allScores.js uses simplified ratio-to-score mapping
+```
+- ❌ **Moat score** — Blueprint calls for qualitative→quantitative scoring rubric. Currently not scored separately.
+- ❌ **ROIC consistency tracker** — 5-yr rolling ROIC with trend classification not implemented
+- ❌ **BSS deterioration alert** — QoQ drop >1.5 points rule exists but BSS history not tracked
+
+**IOS Formula (Blueprint vs actual)**
+```
+Blueprint:  IOS = (BSS×0.30) + ((10-VRS)×0.22) + (MOS×0.18) + (STI_adj×0.18) + (AltData×0.12)
+            STI_adj = 10 - |STI-50|/5  (neutral sentiment rewarded)
+Actual:     composite = (BSS×0.30) + ((10-VRS)×0.20) + (MOS×0.20) + (STI_adj×0.18) + (AltData×0.12)
+```
+- ⚠️ Weights slightly off from spec (VRS weight 0.22→0.20, MOS 0.18→0.20)
+- ⚠️ STI_adj formula — check if implemented correctly in `allScores.js`
+
+**STI Score**
+- Blueprint: VIX + Put/Call ratio + A/D ratio + NLP sentiment velocity → 0–100 scale
+- Actual: Simplified score derived from promoter pledge + FII flow proxy → 0–10 scale
+- ❌ No Put/Call ratio data
+- ❌ No A/D (Advance/Decline) ratio
+- ⚠️ Scale mismatch: Blueprint uses 0–100, app uses 0–10 (conversion: app_score × 10)
+
+**MOS — Market Opportunity Score**
+- Blueprint: Sector rotation stage + M2 growth + RBI repo trend + FII/DII flows + institutional participation
+- Actual: RBI rate + FII flow + VIX from macro table ✅ but:
+- ❌ No sector rotation classification engine (rolling 4-week relative strength)
+- ❌ No M2 money supply tracking
+
+### Alternative Data Layer — Framework 5 ⚠️
+| Blueprint Signal | Current Status |
+|---|---|
+| FASTag toll data (data.gov.in) | ❌ Not ingested — UI placeholder only |
+| Job posting data (Naukri/LinkedIn) | ❌ Not ingested — UI placeholder only |
+| App download trends | ❌ Not ingested — UI placeholder only |
+| Satellite/parking data | ❌ Not ingested |
+| GST E-Way Bill data | ❌ Not ingested |
+| Electricity consumption | ❌ Not ingested |
+| ADS composite calculator | ⚠️ Score exists in DB but calculated from dummy data |
+| Sector-specific ADS weights | ❌ Not configurable |
+
+**The `AlternativeData.jsx` page exists** with signal display UI, but no real data is flowing in. The scores in the database are seeded demo values, not live alternative data.
+
+### Decision Notes System ⚠️
+
+The blueprint's **full pre-trade documentation** spec:
+| Blueprint Field | Implemented |
+|---|---|
+| Entry reason (BSS/VRS/MOS/STI refs) | ✅ `entry_thesis` field |
+| Risk factors (top 3–5) | ✅ `risk_1`, `risk_2`, `risk_3` |
+| Time horizon | ✅ `time_horizon` |
+| 3-Scenario Model (EV) | ✅ Separate `Scenarios.jsx` + `outcome_scenarios` table |
+| Invalidation criteria | ✅ `what_proves_wrong` |
+| Position sizing | ✅ `position_size_pct` + reason |
+| Narrative Check | ✅ Linked via narrative module |
+| TipTap rich text editor | ❌ Plain `<textarea>` instead |
+| AI post-review generator | ❌ No LLM auto-draft |
+| Calibration score tracker | ⚠️ In Scenarios page but limited |
+| Pattern library tagger | ❌ Not implemented |
+| Brier score tracking | ❌ Not implemented |
+
+### Outcome Probability Scoring ⚠️
+- ✅ 3-scenario EV model built (`Scenarios.jsx`)
+- ✅ Calibration score calculation on outcomes
+- ❌ Minimum EV threshold gate (configurable, rejects trades below threshold)
+- ❌ Brier score computation
+- ❌ Calibration curve visualization
+- ❌ "Which scenario materialized?" prompt at 3/6 month mark (auto-trigger missing)
+
+---
+
+## 🔴 Not Yet Implemented (Future Phases)
+
+### Phase 4 — Sentiment Intelligence (Months 12–16) ❌
+- ❌ FinBERT NLP pipeline on Indian news
+- ❌ News scraping (ET, Moneycontrol, Mint, Business Standard)
+- ❌ Social media sentiment (Twitter cashtags, Reddit r/IndiaInvestments)
+- ❌ Hype cycle detector (7-day rolling mention volume)
+- ❌ Earnings call transcript NLP
+- ❌ Real-time STI updates (currently static/seeded)
+- ❌ WebSocket live STI gauge
+
+### Phase 5 — Capital Allocation Simulator (Months 16–20) ❌
+- ❌ Mean-Variance / Black-Litterman portfolio optimization
+- ❌ Kelly Criterion position sizing (formula exists in decision notes but no optimizer)
+- ❌ Monte Carlo simulation (10,000 scenarios)
+- ❌ VaR / CVaR calculation
+- ❌ Historical stress testing (2008, 2020 COVID, 2022 rate hike periods)
+- ❌ Scenario comparison dashboard
+
+### Phase 6 — Learning Engine (Months 20–24) ⚠️ (stub only)
+| Blueprint Spec | Status |
+|---|---|
+| Backtesting framework (Backtrader/VectorBT) | ❌ |
+| Monthly model retraining pipeline | ❌ |
+| Decision note analyzer (LLM) | ❌ |
+| Performance attribution (BSS alpha vs STI timing) | ❌ |
+| Strategy evolution loop | ❌ |
+| Calibration tracker (Brier score) | ❌ Partially in Scenarios |
+| `LearningEngine.jsx` UI stub | ✅ Exists (placeholder) |
+
+### Phase 7 — SaaS Platform (Months 24–30) ❌
+- ❌ Auth / user accounts (Supabase)
+- ❌ Subscription tiers (Razorpay)
+- ❌ Mobile app (React Native)
+- ❌ Community features / anonymous sharing
+- ❌ Weekly intelligence reports (PDF + email)
+- ❌ SEBI compliance layer
+
+### Phase 8 — Institutional ❌
+- ❌ All items — not expected at this stage
+
+---
+
+## 🏗️ Architecture Decisions: Where You Diverged from Blueprint
+
+| Blueprint Prescribes | What Was Built | Verdict |
+|---|---|---|
+| PostgreSQL + TimescaleDB | SQLite (`better-sqlite3`) | **Pragmatic** — fine for personal use, needs migration for SaaS |
+| Apache Airflow ETL | Node.js `priceUpdater.js` cron | **OK for now** — Airflow overkill for this stage |
+| FastAPI (Python) | Express.js (Node.js) | **Fine** — same REST concept |
+| React + TypeScript + Tailwind | React + Vite + Vanilla CSS | **Almost right** — TypeScript missing (type safety would help) |
+| TipTap rich text | `<textarea>` | **Gap** — decision notes deserve rich text editor |
+| Supabase Auth | No auth | **Gap** — needed before any multi-user use |
+| shadcn/ui components | Custom CSS design system | **Actually better** — your design looks more premium |
+| dnd-kit watchlist | Static tab buttons | **Minor gap** |
+| LangChain agents | Custom logic in Express routes | **Pragmatic** — LangChain is overkill for current scale |
+| FinBERT NLP | Rule-based sentiment proxy | **Phase 4 gap** — expected |
+| XGBoost ML return prediction | Not implemented | **Phase 3 gap** — expected |
+
+---
+
+## 🎯 Priority Gap List — What to Build Next
+
+Ranked by **impact vs effort** for a solo developer:
+
+### Tier 1 — High Impact, Moderate Effort
+1. **Real Alt Data Ingestion** — Connect `data.gov.in` FASTag + E-Way Bill APIs (both free/public). This is your biggest competitive edge and the Framework 5 score is currently meaningless with seeded data.
+2. **LLM Integration (Gemini/Claude API)** — The thesis generator, auto-review drafter, and weekly brief are all scaffolded but use hardcoded text. One real API key transforms 4 modules.
+3. **IOS Weight Correction** — Fix weights to match blueprint spec exactly: VRS weight 0.22, MOS 0.18. Small but technically important.
+4. **Brier Score + Calibration Curve** — The calibration section in Scenarios is partially built. Add `brier_score_loss` calculation and chart. This is 1–2 days of work.
+5. **TipTap Editor in Decision Notes** — Replace `<textarea>` with rich text. Blueprint specifically calls this out.
+
+### Tier 2 — High Impact, Higher Effort
+6. **Scale to 200+ Stocks** — Currently 20 stocks. Blueprint spec is 500+. Add bulk seed from a screener export (Screener.in allows CSV exports).
+7. **Real-time Cron for Alt Data** — Create `server/jobs/altDataUpdater.js` similar to `priceUpdater.js`, ingesting FASTag/E-Way data on a weekly schedule.
+8. **Quarterly Review Auto-Trigger** — Decision notes older than 3 months should auto-flag for review. Node-cron can scan and push a notification.
+9. **Moat Scoring Module** — Currently missing entirely. Add a manual qualitative input (switching cost, network effect, pricing power, ROIC) converted to BSS sub-score.
+10. **TypeScript Migration** — Blueprint specifies TypeScript. Add types incrementally — especially for API response shapes.
+
+### Tier 3 — Phase 4+ (Future)
+11. Phase 5 Portfolio Optimizer (PyPortfolioOpt)
+12. Phase 4 FinBERT NLP pipeline
+13. Phase 6 Backtesting with Backtrader
+14. Phase 7 Auth + SaaS infrastructure
+
+---
+
+## 📊 Overall Completion Score by Phase
+
+```
+Phase 1  (Data Infrastructure)      ████████░░  80%  — Need more stocks, real crons
+Phase 2  (Observation Dashboard)    ████████░░  80%  — Missing auth, PDF export, dnd
+Phase 3  (Reasoning Engine)         ███████░░░  70%  — Missing XGBoost, SHAP, LLM live
+Phase 3.5 (Agentic AI)              ███████░░░  70%  — Missing LangChain, live BSE scraper
+Alt Data (Framework 5)              ███░░░░░░░  30%  — UI built, data not flowing
+Decision Notes                      ████████░░  80%  — Missing TipTap, AI drafter
+Scenarios / Probability             ███████░░░  65%  — Missing Brier score, auto-triggers
+Narrative Risk                      ████████░░  80%  — NLP automation missing (manual only)
+Regulatory Intel                    ███████░░░  65%  — RSS feeds not connected
+Fiscal Health                       ███████░░░  65%  — UI built, no portfolio optimizer link
+Tokenized Assets                    █████░░░░░  50%  — Framework stub, no live data
+Phase 4  (Sentiment NLP)            ░░░░░░░░░░   0%  — Not started (Phase 4 = Months 12–16)
+Phase 5  (Capital Allocation)       ░░░░░░░░░░   0%  — Not started (Phase 5 = Months 16–20)
+Phase 6  (Learning Engine UI)       ██░░░░░░░░  20%  — Placeholder only
+Phase 7  (SaaS Platform)            ░░░░░░░░░░   0%  — Not started
+Phase 8  (Institutional)            ░░░░░░░░░░   0%  — Not started
+
+Overall vs Full Blueprint:          ████░░░░░░  ~45%
+Vs Current-phase target (Ph 1–3.5): ████████░░  ~78%
+```
+
+---
+
+## ✅ Conclusion
+
+Your project is **on-track for its current phase**. You have built:
+- A working full-stack platform with 16 modules
+- All 5 scoring frameworks operational
+- Agentic monitoring scaffolded
+- 7 of the "New Ideas" from the blueprint present as UI modules
+
+The **biggest gaps vs the blueprint** are:
+1. Alternative data is UI-only — no real data flows
+2. LLM integration uses demo keys (thesis/review drafting non-functional)
+3. Phases 4–8 not started (expected — they're Months 12–42)
+4. IOS formula weights slightly off spec
+5. FinBERT NLP, XGBoost ML, Backtesting — Phase 3–6 build items
+
+The most impactful single action you can take right now: **connect a real Gemini/Claude API key + plug in one live alt-data source (FASTag).** That alone will bring Frameworks 3, 4, and 5 to life.

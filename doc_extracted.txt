@@ -1,0 +1,662 @@
+﻿AUTONOMOUS INVESTMENT
+INTELLIGENCE SYSTEM
+& Future Investment Firm Blueprint
+Complete Master Reference — Technical + Practical + Project + Workflows
+Version 2.0  |  2025
+What This Document Is
+Your complete operating manual for building an AI-powered investment intelligence system.
+It covers: thinking frameworks, decision process, system logic, tech stack,
+phased project roadmap, risk management, and workflow diagrams — all in one place.
+Tone: serious work, human voice. Not a pitch deck. Not a textbook. A working document.
+SECTION 0 — Master System Overview
+Before diving in, here's the big picture. Every piece of this system connects. Understanding how they link is more important than any individual section.
+What You're Building
+A scoring system that evaluates stocks across 4 dimensions automatically
+A decision documentation system that forces you to write your reasoning
+A rules engine that converts your thinking into executable logic
+A learning loop that makes the system smarter with every decision you review
+Eventually: a platform that delivers investment intelligence to others
+The 5-Layer Architecture
+Layer
+What It Does
+Built In Phase
+Data Layer
+Raw price, fundamentals, macro, news feeds
+Phase 1
+Framework Layer
+Score businesses, valuations, sentiment
+Part 1 + Phase 2
+Decision Layer
+IF-THEN rules, thesis generation, risk flags
+Part 2-3 + Phase 3
+Learning Layer
+Backtesting, diary review, strategy evolution
+Phase 6
+Platform Layer
+Reports, user interface, institutional tools
+Phase 7-8
+High-Level System Flowchart
+MARKET DATA (APIs: NSE, Screener.in, RBI, NewsAPI)
+▼  Automatically ingested daily into unified database
+4 SCORING FRAMEWORKS  →  Business Score + Valuation Score + Market Score + Sentiment Score
+▼  Combined into composite signal
+IF-THEN DECISION ENGINE  →  BUY / WATCH / AVOID / SELL signal per stock
+▼  BUY signal triggers
+DECISION NOTE  →  Entry reason, risk factors, time horizon, what proves me wrong
+▼  Trade executed, then observation recorded
+STRATEGY DIARY  →  Market context, mood, observations, new framework ideas
+▼  After 3-6 months
+REVIEW LOOP  →  Outcome vs expectation → Bias identified → Rule updated
+▼  Loop restarts — system gets smarter each cycle
+COMPOUNDING INTELLIGENCE LOOP  (this is your actual edge)
+PART 1 — Investment Thinking Frameworks
+These 4 frameworks are your analytical foundation. Every stock observation runs through all 4. They produce scores that feed the decision engine.
+Framework 1 — Business Quality Framework
+Core question: Is this actually a good business worth owning?
+Factor
+What to Examine
+Weight
+Revenue Growth Consistency
+3+ year trend — not one-off spike
+20%
+Profit Margin Trend
+Improving / stable / shrinking over time?
+20%
+Debt Sustainability
+D/E ratio, interest coverage, FCF vs total debt
+15%
+Competitive Moat
+Brand / switching cost / network effect / cost advantage
+20%
+Management Quality
+Capital allocation track record, promoter stake trends
+15%
+Industry Lifecycle
+Sunrise / mature / declining sector?
+10%
+OUTPUT: Business Strength Score (0–10)
+8–10 = High-quality business. Pay premium. Hold for years.
+5–7  = Average quality. Only buy at a significant discount to fair value.
+0–4  = Weak business. Avoid unless you have a deep turnaround thesis.
+India-Specific Red Flags to Check
+Promoter pledge % — above 30% of holding is a serious warning sign
+Related-party transactions in annual report — common manipulation signal
+GST filing regularity — inconsistency indicates revenue manipulation
+Auditor changes — frequent changes or Big 4 replacement = red flag
+Framework 2 — Valuation Framework
+Core question: Even if it is a great business, am I paying too much right now?
+Metric
+How to Use It
+Red Flag
+PE vs Sector Median
+Is the premium justified by fundamentals?
+> 2x sector PE
+PEG Ratio
+PE divided by earnings growth rate — under 1 is often undervalued
+> 2.0
+EV/EBITDA Trend
+Expanding multiple = market paying more, not business growing
+Continuously expanding
+Historical PE Bands
+Where is current PE vs its own 5-year range?
+Near 5-year high
+Market Expectation Risk
+What growth rate is currently priced in?
+Unrealistic expectations
+OUTPUT: Valuation Risk Score (0–10)
+0–3 = Cheap. Good margin of safety. Accumulate in tranches.
+4–6 = Fair value. Wait for dips or buy small position now.
+7–10 = Expensive. High downside risk. Avoid new entry.
+Framework 3 — Market Structure Framework
+Core question: Is the broader environment working for or against my trade right now?
+Signal
+What It Tells You
+Where to Find It
+Sector Rotation Stage
+Which sectors getting institutional inflows?
+NSE sector performance
+RBI Rate Cycle Position
+Rising = compress PE. Cutting = expand PE.
+RBI MPC decisions
+FII vs DII Flow
+FII buying = risk-on globally. DII = domestic support.
+NSE daily FII/DII data
+India VIX Level
+Below 15 = calm. 20-30 = stress. Above 30 = panic.
+NSE India VIX page
+GST Collections
+Proxy for real economic activity in India
+GST Council monthly data
+INR vs USD Trend
+Depreciation benefits IT/pharma. Hurts importers.
+RBI reference rate
+OUTPUT: Market Opportunity Score (0–10)
+8–10 = Strong tailwind. Size up positions.
+5–7  = Neutral market. Stock-picking alpha matters more than macro beta.
+0–4  = Headwinds active. Reduce new positions. Hold more cash.
+India Macro Events Calendar (Track These)
+RBI MPC meeting — 6 times per year (rate decision impacts all sectors)
+Union Budget — February (sector winners/losers defined here)
+Quarterly GDP data — proxy for earnings direction
+Monsoon progress — June to September (FMCG, agri, rural demand)
+US Fed meetings — global risk-on/risk-off driver
+Framework 4 — Behavioral Finance Framework
+Core question: Is the market being irrational right now in a way I can use?
+Signal
+What to Look For
+Action Trigger
+Fear vs Greed Extreme
+VIX above 25 + heavy retail selling = fear extreme
+Buy quality watchlist stocks
+Panic Selling Detection
+5%+ single-day drop on 5x average volume without news
+Research and consider accumulating
+IPO / SME Euphoria
+100x subscriptions, retail frenzy, social media hype
+Reduce exposure, avoid new entries
+News Hype Cycles
+Same stock on every channel = already fully priced in
+Contrarian exit signal
+Promoter Buying
+Insider buying after price correction = confidence signal
+Bullish indicator for long-term
+OUTPUT: Sentiment Temperature Index (0–10)
+0–2  = Deep Fear. Historically the best entry point for quality stocks.
+3–5  = Neutral sentiment. Normal disciplined investing applies.
+6–8  = Optimistic market. Be selective. Tighten stop-losses.
+9–10 = Euphoria. High correction risk. Exit overvalued positions.
+Composite Score — Combining All 4 Frameworks
+A score from a single framework is just an opinion. The composite is a signal.
+Framework
+Raw Score (0-10)
+Weight
+Formula
+Business Quality
+Your score
+35%
+Score × 0.35
+Valuation (inverted — lower risk = higher score)
+(10 - Valuation Risk)
+30%
+(10 - Score) × 0.30
+Market Opportunity
+Your score
+20%
+Score × 0.20
+Sentiment (adjusted)
+Inverted if above 7
+15%
+Adjusted × 0.15
+COMPOSITE TOTAL
+—
+100%
+Sum of all 4 weighted scores
+Composite Score Interpretation
+7.5–10 = STRONG BUY — All 4 signals aligned. Full position.
+6.0–7.4 = BUY with discipline — Good signal but size conservatively.
+4.5–5.9 = HOLD / WATCH — No clear edge. Patience required.
+3.0–4.4 = AVOID — Too many negatives. Better opportunities exist.
+0–2.9  = EXIT / SHORT — Significant downside risk. Review holdings.
+PART 2 — Decision Notes System
+Every investment action gets documented. No exceptions. This is how you build an intellectual edge and eliminate emotion from decisions over time.
+Why This Is Non-Negotiable
+Without notes, you repeat the same mistakes indefinitely — just with more money
+Writing the thesis forces you to think clearly before you act
+The 'what will prove me wrong' question is your built-in risk management
+Your notes become the training data for the AI learning system in Phase 6
+Decision Note Template
+Field
+What to Write
+Date + Asset
+e.g., 15-Jan-2025 | TCS | Entry at Rs.3,850 | 50 shares
+Action
+BUY / SELL / HOLD / SKIP — quantity and % of portfolio
+Composite Score
+Business: 7.2 | Valuation: 4.1 | Market: 6.5 | Sentiment: 4.8 | Total: 6.6
+Entry Thesis
+2-3 sentences on why NOW specifically. Not just 'it looks good.'
+Top 3 Risk Factors
+What are the 3 most likely ways this trade goes wrong?
+Time Horizon
+Short (<3M) / Medium (3-12M) / Long (>1Y) — and why this horizon
+Expected Scenario
+What do you expect to happen and in what timeframe?
+What Proves Me Wrong
+ONE specific event/metric that proves the thesis is broken
+Stop-Loss Level
+Price or event that forces an exit or review
+Position Size Reason
+Why this specific % — what is your conviction level?
+Post-Review Template (3-6 Months After Entry)
+Review Field
+What to Answer
+Outcome vs Expectation
+Did the stock do what you expected? By how much?
+Bias Identified
+Was there anchoring, FOMO, confirmation bias, or recency bias?
+What I Got Right
+Specific — not 'I was right' but exactly which signal was correct
+What I Got Wrong
+Brutally honest — which assumption was flawed?
+Framework Update Needed?
+Does any scoring rule need to change because of this outcome?
+Carry Forward Rule
+One insight that becomes a permanent addition to Part 3
+Decision Process Flowchart
+STEP 1: Stock appears on radar (screener / news / macro signal)
+▼
+STEP 2: Run all 4 Frameworks → Calculate Composite Score
+▼  If Composite < 5.0: Add to watchlist. Set alert. Move on.   If > 5.0: Continue ↓
+STEP 3: Write full Decision Note using template above
+▼
+STEP 4: Apply position sizing rules (see Risk Management section)
+▼
+STEP 5: Execute trade. Set stop-loss alert. Calendar 3-month review date.
+▼  At review date ↓
+STEP 6: Fill in Post-Review template. Extract 1 learning. Update Part 3 rule.
+▼  Loop continues — your system learns from every trade
+OVER TIME: 50+ notes = pattern recognition. 100+ notes = machine learning input.
+PART 3 — System Logic (AI Thinking Rules)
+This is where your investment judgment gets encoded into rules that the system can execute consistently. Start simple with IF-THEN. Evolve to ML only after you have data.
+Macro-Level Rules
+Condition
+Threshold
+System Action
+RBI hiking rates
+2 or more consecutive hikes
+Reduce high-PE exposure 20%. Favour PSU banks, short-duration bonds.
+RBI cutting rates
+First cut after pause
+Add weight to NBFCs, real estate, capex-heavy sectors.
+FII net outflows
+Above Rs.5,000 Cr in a single week
+Hold cash. Wait for reversal signal before new entries.
+INR depreciation
+Above 3% in one month
+Increase IT, pharma, and export-oriented holdings.
+India VIX spike
+Crosses 22 level
+Activate panic-buy mode for high-scoring watchlist stocks.
+GST below Rs.1.5L Cr
+For 2+ consecutive months
+Economic slowdown signal. Reduce cyclical exposure.
+Stock-Level Rules
+Condition
+Threshold
+Action
+Business Score drops post-buy
+Falls more than 2 points
+Immediate thesis review. Likely exit.
+Valuation Score rises post-buy
+Goes above 8.0
+Trim 30-50% of position at market.
+Earnings miss
+2 consecutive quarters
+Exit unless major structural reason exists.
+Promoter pledge increases
+Exceeds 30% of holdings
+Exit. High risk of forced selling.
+Volume spike + price fall
+7%+ drop on 5x average volume
+Research cause before acting — could be opportunity.
+Sector headwind emerges
+Policy change or industry disruption
+Reassess all holdings in that sector.
+Portfolio-Level Rules
+Rule
+Limit
+Why It Exists
+Max single stock position
+10% of portfolio
+Prevents single-name ruin
+Max single sector
+30% of portfolio
+Sector-specific risk control
+Minimum cash reserve
+10% always
+Dry powder for opportunities
+Portfolio drawdown pause
+15% portfolio loss
+Stop adding. Review all positions. Do not average down blindly.
+Win rate floor
+Below 40% over 12 months
+Full framework audit required — something is wrong
+Maximum positions
+20-25 stocks
+Above this you cannot monitor properly
+Buy / No-Buy Decision Tree
+Is this stock already on your scored watchlist?  →  If NO: Score it first or skip.
+▼  YES
+Business Score >= 6?  →  If NO: Remove from watchlist. Not a quality business.
+▼  YES
+Valuation Risk Score < 7?  →  If NO: Good business, wrong price. Set price alert. Wait.
+▼  YES
+Market Opportunity Score > 5?  →  If NO: Right stock, wrong time. Reduce size by 50%.
+▼  YES
+Sentiment NOT in Euphoria (score < 8)?  →  If Euphoria: Cut intended size by half.
+▼  ALL CONDITIONS MET
+→  WRITE DECISION NOTE  →  APPLY POSITION SIZING  →  EXECUTE  ←
+Evolution Path — Rules to ML
+Stage
+Timeframe
+What You Build
+Stage 1: Manual IF-THEN
+Month 1-6
+Explicit rules coded in Python (this document)
+Stage 2: Scoring Models
+Month 6-12
+Weighted inputs, regression on outcomes
+Stage 3: Decision Trees
+Year 2
+Trained on your 50+ reviewed decision notes
+Stage 4: ML Classifiers
+Year 2-3
+XGBoost / Random Forest on outcomes vs features
+Stage 5: LLM-Assisted
+Year 3+
+Claude/GPT analyzes diary, suggests rule updates
+Critical Principle
+Your hand-written IF-THEN rules from Stage 1 ARE the training labels for Stage 4 ML.
+Never skip the manual phase thinking the AI will figure it out.
+The AI needs your human judgment first. Then it can scale it.
+PART 4 — Strategy Diary
+The diary is where raw observations become frameworks. It needs enough structure to be mined for patterns later, but enough freedom to capture real thinking.
+Structured Diary Entry Template
+Field
+What to Record
+Date
+e.g., Tuesday, 15 Jan 2025
+[MACRO] Observation
+One key thing you noticed about the economy or market today
+[SECTOR] Thesis
+Any sector showing unusual strength or weakness — and why?
+[SIGNAL] Bubble or Crash Flag
+Any red flags? Any unusual buying or selling patterns?
+[FRAMEWORK] New Rule Idea
+Did you observe a pattern that should become a permanent rule?
+[MISTAKE] Lesson
+What went wrong this week? Be specific, not vague.
+[MOOD] Emotional Check
+Are you feeling greedy or fearful right now? Be honest.
+[INSIGHT] Best Idea of the Day
+One sentence. Your sharpest observation.
+Use the tags [MACRO], [SECTOR], [SIGNAL], [FRAMEWORK], [MISTAKE], [MOOD], [INSIGHT] consistently. These become searchable and parseable by an LLM later.
+Diary as AI Training Data
+After 6 months of consistent diary entries, run them through Claude or GPT with this prompt:
+Read these diary entries. What are my 5 most recurring biases?
+What patterns do I keep noticing that have not yet become formal rules?
+What mistakes do I repeat? The AI answer = your next framework update.
+RISK MANAGEMENT FRAMEWORK
+This section was missing entirely from the original document. Risk management is not optional — it is what keeps you in the game long enough for your edge to compound.
+Position Sizing Rules
+Conviction Level
+Composite Score
+Max Position Size
+Notes
+High conviction
+7.5 to 10.0
+8-10% of portfolio
+Only for Nifty 100 or top-quality mid-caps
+Medium conviction
+6.0 to 7.4
+4-7% of portfolio
+Standard allocation for most trades
+Low conviction / test
+5.0 to 5.9
+1-3% of portfolio
+Small size to learn, not to make money
+Hard cap — any stock
+Any score
+Never exceed 10%
+Non-negotiable regardless of conviction
+Stop-Loss and Exit Rules
+Thesis stop: If the reason you bought is no longer true, exit — price is irrelevant
+Time stop: If thesis has not played out in 2x the expected time, review and likely exit
+Price stop: 15-20% below entry for high-quality stocks. 8-10% for speculative positions
+Earnings stop: 2 consecutive earnings misses = automatic review and probable exit
+Valuation stop: If stock runs to Valuation Risk Score above 8 post-buy, trim heavily
+Portfolio-Wide Risk Dashboard
+Risk Metric
+Safe Range
+Action if Breached
+Cash as % of portfolio
+10-25%
+Below 10%: pause new buys. Above 25%: review opportunities.
+Single stock concentration
+Max 10%
+Trim immediately on breach
+Single sector concentration
+Max 30%
+No new additions to that sector
+Portfolio max drawdown
+Pause at -15%
+Full position review. No new buys until stabilized.
+Beta vs Nifty
+Target 0.8-1.2
+Above 1.5 = too aggressive. Below 0.5 = too defensive.
+TECHNICAL ARCHITECTURE AND STACK
+The original document had no technology defined anywhere. That makes it a concept document, not a build document. This section fixes that.
+Data Sources — India-Focused
+Data Type
+Recommended Source
+Cost
+NSE stock prices
+nsepy Python library / yfinance
+Free
+Fundamentals (Indian stocks)
+Screener.in export / Tijori Finance API
+Free / Paid
+Macro data — RBI, CPI, GDP
+RBI DBIE portal + data.gov.in
+Free
+News feed
+Economic Times RSS / NewsAPI / Tickertape
+Free tier available
+FII and DII flows
+NSE website daily bulletin / Trendlyne
+Free / Paid
+Options data and India VIX
+NSE options chain API
+Free
+Global macro — US Fed, yields
+FRED API (St. Louis Fed)
+Free
+Fundamentals for backtesting
+BSE bulk download + manual cleaning
+Free
+Technology Stack by Phase
+Phase
+Technology
+Purpose
+Phase 1: Data
+Python, pandas, SQLite or TimescaleDB
+Ingest and store market data daily
+Phase 2: Dashboard
+Streamlit (fast) or React (scalable)
+Visualize scores and signals
+Phase 3: Rules Engine
+Python functions + JSON config
+Execute IF-THEN logic from Part 3
+Phase 4: NLP Sentiment
+FinBERT or Claude API on headlines
+Sentiment score from news
+Phase 5: Optimizer
+scipy.optimize or custom portfolio engine
+Optimal position sizing
+Phase 6: Backtesting
+VectorBT or Backtrader
+Historical strategy validation
+Phase 6: AI Layer
+LangChain + Claude API
+Thesis generation, diary analysis
+Phase 7+: Platform
+React frontend + FastAPI backend + PostgreSQL
+Production web application
+Database Schema — Core Tables
+Tables to Build in Phase 1
+stocks         — ticker, name, sector, market_cap, exchange, nse_symbol
+price_daily    — ticker, date, open, high, low, close, volume, adj_close
+fundamentals   — ticker, date, pe, pb, roe, roce, debt_equity, revenue_growth, margin
+macro_data     — date, rbi_rate, fii_flow, dii_flow, india_vix, usd_inr, nifty_pe, gst_collection
+scores         — ticker, date, business_score, valuation_score, market_score, sentiment_score, composite
+decision_notes — id, date, ticker, action, composite_score, thesis, risks, horizon, exit_condition, size_pct
+diary_entries  — id, date, macro_obs, sector_thesis, signals, mistakes, mood, key_insight, tags
+reviews        — note_id, review_date, outcome, bias, what_right, what_wrong, rule_update
+Phase 1 MVP — Your First Deliverable
+What to Build First (2 months max)
+A Python script that runs daily and:
+1. Fetches price and fundamentals for your 20-stock watchlist from NSE + Screener.in
+2. Calculates Business Quality Score and Valuation Risk Score for each stock
+3. Outputs a ranked table sorted by composite score
+4. Sends a Telegram or email alert when a stock crosses score threshold
+This is your MVP. Ship this before touching anything else in this document.
+PART 5 — Revised Phase-Wise Project Roadmap
+Original 8-phase structure kept but with timelines added, vague items cut, concrete MVPs defined per phase, and deferred phases clearly marked.
+Phase 1 — Market Data Infrastructure
+Month 1-2
+Connect: NSE prices, Screener.in fundamentals, RBI macro data, NewsAPI headlines
+Build: Unified SQLite database with core schema (see Technical section)
+Automate: Daily refresh via Python cron job or GitHub Actions
+Validate: Data quality checks — catch missing prices, stale fundamentals
+MVP test: Can you pull 20 stocks' PE + price + revenue growth automatically?
+Phase 2 — Observation Dashboard
+Month 2-3
+Build: Streamlit dashboard with Business + Valuation scores for watchlist
+Add: Sector comparison view — which sector is currently cheapest?
+Add: Alert system — Telegram/email when stock hits target composite score
+Add: India VIX and FII/DII tracker on dashboard homepage
+MVP test: Does your dashboard surface better ideas than random news browsing?
+Phase 3 — Reasoning Engine
+Month 3-5
+Build: IF-THEN rule engine in Python from Part 3 rules in this document
+Build: Thesis generator — Claude API creates first-draft thesis from scores
+Build: Risk explainer — auto-identifies top 3 risks for any position
+Build: Watchlist alert when all 4 framework conditions are met simultaneously
+MVP test: Does the engine flag the same buy opportunities you would find manually?
+Phase 4 — Sentiment Intelligence
+Month 4-6
+Build: NLP news scoring using FinBERT model or Claude API on daily headlines
+Build: India VIX + FII/DII flow integrated into Market Opportunity Score calculation
+Build: Earnings call sentiment — flag bullish or cautious management tone
+Note: Skip social media sentiment tracker for now — high noise, low signal for India
+MVP test: Does sentiment score match actual market mood when tested on past 6 months?
+Phase 5 — Capital Allocation Simulator
+Month 6-8
+Build: Portfolio optimizer — given 10 scored stocks, suggest optimal allocations
+Build: Scenario tester — what happens to your portfolio in crash / rate spike / boom?
+Build: Correlation dashboard — are your holdings more correlated than you think?
+Build: Risk summary — concentration, sector overlap, beta vs Nifty
+MVP test: Would the simulator's portfolio beat your actual portfolio over 6 months?
+Phase 6 — Learning Engine
+Month 8-12
+Build: Backtesting engine using your framework scores on 5 years of historical data
+Build: Decision note review loop — parse old notes, compare predictions vs outcomes
+Build: Strategy evolution module — which rules have highest predictive accuracy?
+Build: Diary mining — LLM extracts patterns, recurring mistakes, emerging frameworks
+MVP test: Does backtested composite strategy beat Nifty 50 with acceptable drawdown?
+Phase 7 — FinTech Platform Launch  [DEFERRED — Year 2+]
+Year 2 onwards
+User onboarding, investment intelligence reports, subscription model
+IMPORTANT: Requires SEBI Research Analyst registration before sharing investment advice
+DO NOT build this until Phase 1-6 are working and profitable in your own account
+Legal note: Get CA + legal advisor involved before this phase begins
+Phase 8 — Institutional Expansion  [VERY DEFERRED — Year 3-5+]
+Year 3-5+
+SEBI PMS or AIF Category 3 registration — this requires audited 3-year track record
+Managed capital pools and thematic funds — needs compliance team and legal entity
+Do not plan for this phase until Phase 7 is generating consistent revenue
+MASTER WORKFLOW — End-to-End System Loop
+How every element of this document connects into a self-improving loop.
+EXTERNAL EVENTS: Price movements, earnings reports, RBI decisions, global macro, news
+▼  Automatically pulled by →
+DATA LAYER (Phase 1): Unified database updated daily with prices, fundamentals, macro signals
+▼  Feeds into →
+4 FRAMEWORK SCORERS (Phase 2): Business Score + Valuation Score + Market Score + Sentiment Score
+▼  Combined into →
+COMPOSITE SCORE: Single 0-10 signal per stock — sortable, trackable, comparable
+▼  High score stock enters →
+IF-THEN RULE ENGINE (Phase 3): BUY / WATCH / AVOID / SELL — with explanation
+▼  BUY signal triggers →
+DECISION NOTE (Part 2): Full thesis written before any money moves
+▼  Trade executed, then →
+STRATEGY DIARY (Part 4): Market context, observations, mood, signals recorded daily
+▼  After 3-6 months →
+POST-REVIEW (Part 2): Outcome vs expectation — bias identified — lesson extracted
+▼  Lesson fed back into →
+RULE UPDATE (Part 3 + Phase 6): Framework weights adjusted. New IF-THEN rules added.
+▼  And then →
+SYSTEM GETS SMARTER — Every trade makes the next decision better. Compounding intelligence.
+DOCUMENT AUDIT — What Changed From v1 and Why
+What Was Removed
+Removed
+Reason
+Phase 7+8 as main phases
+5+ years away. Creates distraction. Moved to deferred.
+Community trust building
+Vague, zero actionability, premature
+ML reasoning layers in Part 3
+Premature — needs 50+ decision notes as data first
+Social media sentiment tracker
+High noise, low signal for Indian retail markets
+Managed capital pools / thematic funds
+Legal minefield. Out of scope until year 3+
+Generic phase descriptions without MVP
+Phases without MVPs are just wishes
+What Was Added
+Added
+Why It Was Missing
+Composite score formula with weights
+Scores without combination logic are labels, not signals
+India-specific signals and macro events
+Generic global framework misses your real market context
+Full Risk Management Framework
+Was completely absent — the most critical operational gap
+Position sizing rules
+Without sizing discipline, good analysis still leads to ruin
+Stop-loss and exit rules
+Prevents the most common mistake: holding losers indefinitely
+Technology stack and tool names
+Original had zero tech defined — impossible to build from
+Database schema
+Concrete data architecture for Phase 1 development
+MVP definition per phase
+Prevents endless planning loops without shipping
+Structured diary template with tags
+Unstructured notes cannot be mined for patterns or AI training
+Decision note post-review template
+Review without structure produces vague lessons
+India macro event calendar
+Budget, RBI, monsoon — your most important signal sources
+Audit trail section (this section)
+Documents why decisions were made so future you understands
+IMMEDIATE ACTION PLAN — 90 Day Kickoff
+Stop reading. Start building. This is your week-by-week plan for the next 12 weeks.
+Weeks
+Task
+Done When
+Week 1-2
+Set up Python environment. Connect NSE + Screener.in APIs.
+20 stocks pulling data automatically
+Week 3-4
+Build Business Quality Score function.
+Correct scores output for 5 known stocks
+Week 5-6
+Build Valuation Score. Create composite formula.
+Both scores stored daily in SQLite
+Week 7-8
+Basic Streamlit dashboard showing ranked watchlist.
+Daily ranked view visible in browser
+Week 9-10
+Write 10 Decision Notes manually (no AI yet).
+10 fully documented investment decisions
+Week 11-12
+Start Strategy Diary. Run first post-review on earliest notes.
+First bias identified + first rule update
+The Most Important Rule in This Entire Document
+This system only works if you use it consistently.
+One decision note per week beats a perfect system that never gets used.
+Ship the MVP. Use it. The learning compounds. The system gets smarter. So do you.
+The best investment system is the one you actually follow.
+Investment Intelligence Blueprint — Version 2.0 — Complete Master Document
+Built to evolve. Update this document when a rule changes, a phase completes, or a new insight emerges.
+
