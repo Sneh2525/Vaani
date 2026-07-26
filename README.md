@@ -1,6 +1,6 @@
 # 📊 Investment Intelligence Workspace
 
-This repository houses the **Investment Intelligence Engine**, its architecture blueprints, gap analysis documentation, and full-stack web application.
+This repository houses the **Investment Intelligence Engine**, its architecture blueprints, gap analysis documentation, and full-stack quantitative equity research platform.
 
 ---
 
@@ -9,12 +9,12 @@ This repository houses the **Investment Intelligence Engine**, its architecture 
 ```
 .
 ├── investment-intelligence/                       # Full-Stack Web Application (React 19 + Node/Express + SQLite)
-│   ├── server/                                    # Express API backend, scoring engines, SQLite DB, background jobs
-│   ├── src/                                       # React UI frontend, charts, dashboards, agentic monitors
-│   └── README.md                                  # Detailed Web Application README & Setup Guide
+│   ├── server/                                    # Express API backend, 5-framework scoring engines, SQLite DB, background cron jobs
+│   ├── src/                                       # React UI frontend, quantitative charts, dashboards, agentic monitors
+│   └── README.md                                  # Comprehensive Web Application README & Setup Guide
 │
 ├── Investment_Intelligence_Blueprint_Master_v3.docx # System architecture blueprint document
-├── Investment_Intelligence_Blueprint_Master_v3_polished.docx # Refined & polished blueprint version
+├── Investment_Intelligence_Blueprint_Master_v3_polished.docx # Refined & polished blueprint document
 ├── Investment_Intelligence_Blueprint_v2.docx    # Previous architectural iteration
 ├── blueprint_gap_analysis.txt                     # Detailed gap analysis & phase planning notes
 └── bp_text.txt                                    # Extracted text from architecture blueprints
@@ -28,23 +28,29 @@ The primary platform codebase is located inside the [`investment-intelligence`](
 
 ### Quick Start
 
-1. Navigate to the web application directory:
+1. **Navigate to the app folder**:
    ```bash
    cd investment-intelligence
    ```
 
-2. Install dependencies:
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. Launch both the backend API server and frontend UI concurrently:
+3. **Start backend API & frontend UI concurrently**:
    ```bash
    npm run dev
    ```
 
-4. Open your browser:
-   * **Frontend Application**: `http://localhost:5173`
-   * **API Backend**: `http://localhost:3001`
+4. **Access the application**:
+   * **Frontend Application**: [`http://localhost:5173`](http://localhost:5173)
+   * **API Backend**: [`http://localhost:3001`](http://localhost:3001)
 
-For full details on API endpoints, quantitative scoring framework definitions, and architecture, refer to [`investment-intelligence/README.md`](file:///c:/Users/Sneh%20Patel/Desktop/Y/investment-intelligence/README.md).
+---
+
+## 📖 Key Documentation Links
+
+* Detailed Web Application Documentation: [`investment-intelligence/README.md`](file:///c:/Users/Sneh%20Patel/Desktop/Y/investment-intelligence/README.md)
+* Blueprint Gap Analysis: [`blueprint_gap_analysis.txt`](file:///c:/Users/Sneh%20Patel/Desktop/Y/blueprint_gap_analysis.txt)
+* Blueprint Text Extraction: [`bp_text.txt`](file:///c:/Users/Sneh%20Patel/Desktop/Y/bp_text.txt)
