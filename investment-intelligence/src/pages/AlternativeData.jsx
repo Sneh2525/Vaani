@@ -1,17 +1,28 @@
 import { useState, useEffect } from 'react';
+import { AlertTriangle } from 'lucide-react';
 const API = 'http://localhost:3001/api';
 
 export default function AlternativeData() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/alt-data`).then(r => r.json()).then(d => { setData(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => setLoading(false));
+    fetch(`${API}/alt-data`).then(r => r.json()).then(d => { setData(Array.isArray(d) ? d : []); setLoading(false); }).catch(() => { setError(true); setLoading(false); });
   }, []);
 
   const getColor = (v) => v >= 7 ? 'var(--accent-green)' : v >= 5 ? 'var(--accent-amber)' : 'var(--accent-red)';
   const getTrend = (v) => v === 'RISING' ? '↑' : v === 'FALLING' ? '↓' : '→';
   const getTrendColor = (v) => v === 'RISING' ? 'var(--accent-green)' : v === 'FALLING' ? 'var(--accent-red)' : 'var(--text-muted)';
+
+  if (error) return (
+    <div className="error-state">
+      <AlertTriangle size={32} />
+      <h3>Failed to load alternative data</h3>
+      <p>Could not connect to the API server.</p>
+      <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+    </div>
+  );
 
   return (
     <div>

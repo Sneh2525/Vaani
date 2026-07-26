@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, Tag } from 'lucide-react';
+import { Plus, X, Tag, AlertTriangle } from 'lucide-react';
 const API = 'http://localhost:3001/api';
 
 const TAGS = ['MACRO','SECTOR','SIGNAL','FRAMEWORK','MISTAKE','MOOD','INSIGHT'];
@@ -11,6 +11,7 @@ export default function StrategyDiary() {
   const [showForm, setShowForm] = useState(false);
   const [activeTag, setActiveTag] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [form, setForm] = useState({ date: new Date().toISOString().slice(0,10), macro_obs:'', sector_thesis:'', signal_flag:'', new_rule_idea:'', lesson:'', mood:'NEUTRAL', key_insight:'', tags:'' });
   const [aiPrompt, setAiPrompt] = useState('');
 

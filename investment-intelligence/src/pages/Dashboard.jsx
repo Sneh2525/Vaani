@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, AlertTriangle, Clock, Sparkles, Search, ChevronRight } from 'lucide-react';
+import { TrendingUp, AlertTriangle, Sparkles } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 const API = 'http://localhost:3001/api';
 
@@ -14,8 +14,8 @@ export default function Dashboard() {
   const [macro, setMacro] = useState(null);
   const [alerts, setAlerts] = useState({ alerts: [], critical: 0, high: 0, opportunities: 0 });
   const [portfolio, setPortfolio] = useState(null);
-  const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -23,13 +23,20 @@ export default function Dashboard() {
       fetch(`${API}/macro`).then(r => r.json()),
       fetch(`${API}/alerts/run`).then(r => r.json()),
       fetch(`${API}/portfolio`).then(r => r.json()),
-      fetch(`${API}/notes`).then(r => r.json()).catch(() => []),
-    ]).then(([s, m, a, p, n]) => {
-      setSummary(s); setMacro(m); setAlerts(a); setPortfolio(p); setNotes(Array.isArray(n) ? n.slice(0, 3) : []); setLoading(false);
-    }).catch(() => setLoading(false));
+    ]).then(([s, m, a, p]) => {
+      setSummary(s); setMacro(m); setAlerts(a); setPortfolio(p); setLoading(false);
+    }).catch(() => { setError(true); setLoading(false); });
   }, []);
 
   if (loading) return <div className="loader"><div className="spinner"/></div>;
+  if (error) return (
+    <div className="error-state">
+      <AlertTriangle size={32} />
+      <h3>Failed to load dashboard</h3>
+      <p>Could not connect to the API server. Make sure the server is running on port 3001.</p>
+      <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+    </div>
+  );
 
   const ms = macro?.summary;
   const topBuys = summary?.topBuys || [];
@@ -54,35 +61,29 @@ export default function Dashboard() {
       <div className="market-ticker" style={{ marginBottom: 24, marginTop: -4 }}>
         <div className="ticker-item">
           <span className="ticker-label">Nifty 50</span>
-          <span className="ticker-value">{ms?.niftyClose?.toLocaleString() || '24,125'}</span>
-          <span className="ticker-change change-pos">+1.24%</span>
-        </div>
-        <div className="ticker-item">
-          <span className="ticker-label">Sensex</span>
-          <span className="ticker-value">79,223</span>
-          <span className="ticker-change change-pos">+1.18%</span>
+          <span className="ticker-value">{ms?.niftyClose?.toLocaleString() || '—'}</span>
         </div>
         <div className="ticker-item">
           <span className="ticker-label">VIX</span>
-          <span className="ticker-value">{ms?.indiaVix || '11.4'}</span>
-          <span className="ticker-change change-neg">-5.8%</span>
+          <span className="ticker-value">{ms?.indiaVix || '—'}</span>
         </div>
         <div className="ticker-item">
           <span className="ticker-label">USD/INR</span>
-          <span className="ticker-value">{ms?.usdInr || '84.8'}</span>
+          <span className="ticker-value">{ms?.usdInr || '—'}</span>
         </div>
         <div className="ticker-item">
           <span className="ticker-label">RBI Rate</span>
-          <span className="ticker-value">{ms?.rbiRate || '6.0'}%</span>
-          <span className="ticker-change change-pos">↓ Cutting</span>
+          <span className="ticker-value">{ms?.rbiRate ? `${ms.rbiRate}%` : '—'}</span>
         </div>
         <div className="ticker-item">
           <span className="ticker-label">FII Flow</span>
-          <span className="ticker-value">+₹{((ms?.fiiFlow || 4820) / 100).toFixed(0)}Cr</span>
+          <span className="ticker-value" style={{ color: (ms?.fiiFlow || 0) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+            {ms?.fiiFlow ? `${ms.fiiFlow >= 0 ? '+' : ''}₹${(ms.fiiFlow / 100).toFixed(0)}Cr` : '—'}
+          </span>
         </div>
         <div className="ticker-item">
           <span className="ticker-label">Nifty PE</span>
-          <span className="ticker-value">{ms?.niftyPE || '22.4'}x</span>
+          <span className="ticker-value">{ms?.niftyPE ? `${ms.niftyPE}x` : '—'}</span>
         </div>
       </div>
 
@@ -109,7 +110,7 @@ export default function Dashboard() {
         <div className="stat-tile">
           <div className="stat-tile-label">Portfolio P&L</div>
           <div className="stat-tile-value" style={{ color: (portfolio?.totalPnlPct || 0) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)' }}>
-            {(portfolio?.totalPnlPct || 0) >= 0 ? '+' : ''}{portfolio?.totalPnlPct || 12.9}%
+            {portfolio?.totalPnlPct != null ? `${portfolio.totalPnlPct >= 0 ? '+' : ''}${portfolio.totalPnlPct}%` : '—'}
           </div>
           <div className="stat-tile-change change-neutral">Total Return</div>
           <div className="stat-tile-mini">{portfolio?.holdings?.length || 0} active positions</div>
@@ -173,7 +174,7 @@ export default function Dashboard() {
             <div className="insight-box" style={{ marginTop: 12 }}>
               <strong>AI:</strong> {(signals['STRONG BUY'] || 0) + (signals['BUY'] || 0)} buy signals across {summary?.totalStocks || 0} stocks. 
               Top sectors: {topSectors.slice(0, 3).map(s => s.sector).join(', ')}.
-              VIX at {ms?.indiaVix || 11.4} — favorable for accumulation.
+              VIX at {ms?.indiaVix || '—'} — {ms?.indiaVix < 15 ? 'favorable for accumulation' : 'elevated — be cautious'}.
             </div>
           </div>
 

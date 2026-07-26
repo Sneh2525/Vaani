@@ -1,16 +1,34 @@
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, BarChart, Bar } from 'recharts';
+import { AlertTriangle } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 const API = 'http://localhost:3001/api';
 
 export default function MacroDashboard() {
   const [data, setData] = useState(null);
+  const [regEvents, setRegEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/macro`).then(r => r.json()).then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
+    Promise.all([
+      fetch(`${API}/macro`).then(r => r.json()),
+      fetch(`${API}/regulatory`).then(r => r.json()).catch(() => []),
+    ]).then(([d, r]) => {
+      setData(d);
+      setRegEvents(Array.isArray(r) ? r : []);
+      setLoading(false);
+    }).catch(() => { setError(true); setLoading(false); });
   }, []);
 
   if (loading) return <div className="loader"><div className="spinner"/></div>;
+  if (error) return (
+    <div className="error-state">
+      <AlertTriangle size={32} />
+      <h3>Failed to load macro data</h3>
+      <p>Could not connect to the API server.</p>
+      <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+    </div>
+  );
 
   const { summary: s, history } = data || {};
   const chartData = (history || []).map(m => ({ date: m.date?.slice(0,7), VIX: m.india_vix, FII: (m.fii_flow/1000).toFixed(1), GST: (m.gst_collection/100000).toFixed(2), Rate: m.rbi_rate, INR: m.usd_inr }));
@@ -31,14 +49,8 @@ export default function MacroDashboard() {
     );
   };
 
-  const macroEvents = [
-    { date:'Jun 2025', event:'RBI MPC Meeting', impact:'Rate decision — Banking & NBFC impact', type:'RBI' },
-    { date:'Feb 2026', event:'Union Budget FY27', impact:'Sector winners/losers defined', type:'BUDGET' },
-    { date:'Jun-Sep 2025', event:'Monsoon Progress', impact:'FMCG, agri, rural demand', type:'MACRO' },
-    { date:'May 2025', event:'US Fed FOMC Meeting', impact:'Global risk-on/risk-off driver', type:'FED' },
-    { date:'Apr 2025', event:'Q4 FY25 GDP Data', impact:'Proxy for earnings direction', type:'DATA' },
-  ];
-  const typeColor = { RBI:'var(--accent-cyan)', BUDGET:'var(--accent-purple)', MACRO:'var(--accent-green)', FED:'var(--accent-amber)', DATA:'var(--accent-blue)' };
+  const sourceColor = { SEBI:'var(--accent-blue)', RBI:'var(--accent-cyan)', BUDGET:'var(--accent-purple)', MoD:'var(--accent-green)', FED:'var(--accent-amber)', MCA:'var(--accent-pink)', OTHER:'var(--text-muted)' };
+  const sentColor = { POSITIVE:'tag-green', NEGATIVE:'tag-red', NEUTRAL:'tag-blue' };
 
   return (
     <div>
@@ -49,7 +61,7 @@ export default function MacroDashboard() {
         <Gauge label="Nifty 50 PE" value={s?.niftyPE} min={12} max={35} unit="x" color={s?.niftyPE < 19 ? 'var(--accent-green)' : s?.niftyPE < 24 ? 'var(--accent-amber)' : 'var(--accent-red)'} status={s?.niftyPE < 19 ? 'Cheap' : s?.niftyPE < 24 ? 'Fair' : 'Expensive'} />
       </div>
 
-      {/* FII/DII Flow */}
+      {/* FII/DII Flow + GST */}
       <div className="grid-2" style={{ marginBottom:24 }}>
         <div className="card">
           <div className="card-title" style={{ marginBottom:4 }}>🌊 FII / DII Net Flow (₹ Thousands Cr)</div>
@@ -83,20 +95,36 @@ export default function MacroDashboard() {
         </div>
       </div>
 
-      {/* India Macro Events Calendar */}
+      {/* Regulatory Events — merged from RegulatoryIntel */}
       <div className="card">
-        <div className="card-title" style={{ marginBottom:16 }}>📅 India Macro Events Calendar</div>
+        <div className="card-header">
+          <div className="card-title">🏛️ Regulatory & Policy Events</div>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{regEvents.length} tracked</span>
+        </div>
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {macroEvents.map((e, i) => (
-            <div key={i} style={{ display:'flex', gap:12, alignItems:'center', padding:'12px', background:'var(--bg-dark)', borderRadius:10, border:'1px solid var(--border)' }}>
-              <span style={{ width:60, fontSize:10, color:'var(--text-muted)', fontWeight:600, flexShrink:0 }}>{e.date}</span>
-              <span style={{ fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:4, background:`${typeColor[e.type]}22`, color:typeColor[e.type], flexShrink:0 }}>{e.type}</span>
-              <div>
-                <div style={{ fontWeight:600, fontSize:13 }}>{e.event}</div>
-                <div style={{ fontSize:11, color:'var(--text-muted)' }}>{e.impact}</div>
+          {regEvents.slice(0, 8).map((e, i) => (
+            <div key={e.id || i} style={{ display:'flex', gap:12, alignItems:'flex-start', padding:'12px', background:'var(--bg-dark)', borderRadius:10, border:'1px solid var(--border)' }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:4, flexShrink:0, minWidth:60 }}>
+                <span style={{ fontSize:10, color:'var(--text-muted)', fontWeight:600 }}>{e.date}</span>
+                <span style={{ fontSize:10, fontWeight:700, padding:'2px 6px', borderRadius:4, background:`${sourceColor[e.source] || 'var(--accent-blue)'}22`, color:sourceColor[e.source] || 'var(--accent-blue)', textAlign:'center' }}>{e.source}</span>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ display:'flex', gap:6, alignItems:'center', marginBottom:3 }}>
+                  <span style={{ fontWeight:600, fontSize:13 }}>{e.title}</span>
+                  <span className={`tag ${sentColor[e.sentiment] || 'tag-blue'}`}>{e.sentiment}</span>
+                </div>
+                {e.summary && <div style={{ fontSize:11, color:'var(--text-muted)', marginBottom:6 }}>{e.summary}</div>}
+                <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
+                  {e.affected_sectors?.split(',').map(s => s.trim()).filter(Boolean).map(s => <span key={s} className="tag tag-purple">{s}</span>)}
+                  {e.affected_tickers?.split(',').map(t => t.trim()).filter(Boolean).map(t => <span key={t} className="tag tag-blue">{t}</span>)}
+                </div>
+              </div>
+              <div style={{ fontWeight:800, color: e.impact_score >= 8 ? 'var(--accent-red)' : e.impact_score >= 5 ? 'var(--accent-amber)' : 'var(--accent-green)', fontSize:14, flexShrink:0 }}>
+                {e.impact_score}/10
               </div>
             </div>
           ))}
+          {regEvents.length === 0 && <div style={{ color:'var(--text-muted)', fontSize:13, textAlign:'center', padding:20 }}>No regulatory events tracked yet.</div>}
         </div>
       </div>
     </div>

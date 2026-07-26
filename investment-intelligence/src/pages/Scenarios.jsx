@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, AlertTriangle } from 'lucide-react';
 const API = 'http://localhost:3001/api';
 
 export default function Scenarios() {
@@ -7,6 +7,7 @@ export default function Scenarios() {
   const [calibration, setCalibration] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [form, setForm] = useState({ ticker:'', date: new Date().toISOString().slice(0,10), bull_prob:0.30, bull_target:'', bull_return:'', base_prob:0.50, base_target:'', base_return:'', bear_prob:0.20, bear_target:'', bear_return:'', timeframe_months:12 });
 
   const ev = () => (form.bull_prob * (form.bull_return||0)) + (form.base_prob * (form.base_return||0)) + (form.bear_prob * (form.bear_return||0));
@@ -15,7 +16,7 @@ export default function Scenarios() {
     Promise.all([
       fetch(`${API}/scenarios`).then(r => r.json()),
       fetch(`${API}/scenarios/stats/calibration`).then(r => r.json()),
-    ]).then(([s, c]) => { setScenarios(Array.isArray(s) ? s : []); setCalibration(c); setLoading(false); }).catch(() => setLoading(false));
+    ]).then(([s, c]) => { setScenarios(Array.isArray(s) ? s : []); setCalibration(c); setLoading(false); }).catch(() => { setError(true); setLoading(false); });
   };
   useEffect(() => { load(); }, []);
 

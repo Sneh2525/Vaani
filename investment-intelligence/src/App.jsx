@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route, NavLink, Link } from 'react-router-dom';
 import {
   LayoutDashboard, TrendingUp, BookOpen, PenLine, Shield, Globe,
-  Zap, MessageCircle, Coins, Heart, AlertTriangle, BarChart3,
-  Brain, Target
+  Zap, BarChart3, Brain, Menu, X
 } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
@@ -15,12 +15,7 @@ import Portfolio from './pages/Portfolio';
 import MacroDashboard from './pages/MacroDashboard';
 import AlternativeData from './pages/AlternativeData';
 import AgenticMonitor from './pages/AgenticMonitor';
-import NarrativeRisk from './pages/NarrativeRisk';
 import Scenarios from './pages/Scenarios';
-import TokenizedAssets from './pages/TokenizedAssets';
-import FiscalHealth from './pages/FiscalHealth';
-import RegulatoryIntel from './pages/RegulatoryIntel';
-import LearningEngine from './pages/LearningEngine';
 
 const NAV_ITEMS = [
   { to: '/', icon: <LayoutDashboard size={14} />, label: 'Dashboard' },
@@ -30,33 +25,30 @@ const NAV_ITEMS = [
   { to: '/notes', icon: <PenLine size={14} />, label: 'Decisions' },
   { to: '/rules', icon: <Shield size={14} />, label: 'Rules' },
   { to: '/diary', icon: <BookOpen size={14} />, label: 'Strategy' },
-  { to: '/alt-data', icon: <Target size={14} />, label: 'Alt Data' },
-  { to: '/agentic', icon: <Zap size={14} />, label: 'Agentic', badge: '3' },
-  { to: '/narrative', icon: <MessageCircle size={14} />, label: 'Narrative' },
   { to: '/scenarios', icon: <Brain size={14} />, label: 'Scenarios' },
-  { to: '/regulatory', icon: <AlertTriangle size={14} />, label: 'Regulatory' },
-  { to: '/fiscal', icon: <Heart size={14} />, label: 'Fiscal' },
-  { to: '/tokenized', icon: <Coins size={14} />, label: 'Tokenized' },
-  { to: '/learning', icon: <Brain size={14} />, label: 'Learning' },
+  { to: '/alt-data', icon: <Zap size={14} />, label: 'Alt Data' },
+  { to: '/agentic', icon: <Zap size={14} />, label: 'Agentic' },
 ];
 
 function TopNav() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <nav className="top-nav">
       <div className="top-nav-brand">
         <span className="brand-sub"><strong>Vaani</strong></span>
       </div>
       <div className="top-nav-sep" />
-      <div className="top-nav-links">
+      <div className={`top-nav-links ${mobileOpen ? 'mobile-open' : ''}`}>
         {NAV_ITEMS.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) => `top-nav-link${isActive ? ' active' : ''}`}
+            onClick={() => setMobileOpen(false)}
           >
             {item.label}
-            {item.badge && <span className="nav-badge">{item.badge}</span>}
           </NavLink>
         ))}
       </div>
@@ -64,7 +56,20 @@ function TopNav() {
         <span className="live-dot" />
         <span>Live · NSE · {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
       </div>
+      <button className="mobile-menu-btn" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
     </nav>
+  );
+}
+
+function NotFound() {
+  return (
+    <div className="empty-state" style={{ paddingTop: 120 }}>
+      <h3 style={{ fontSize: 48, fontWeight: 800, color: 'var(--accent-cyan)', marginBottom: 16 }}>404</h3>
+      <p style={{ fontSize: 16, marginBottom: 24 }}>Page not found</p>
+      <Link to="/" className="btn btn-primary">← Back to Dashboard</Link>
+    </div>
   );
 }
 
@@ -86,12 +91,8 @@ export default function App() {
               <Route path="/rules" element={<RulesEngine />} />
               <Route path="/alt-data" element={<AlternativeData />} />
               <Route path="/agentic" element={<AgenticMonitor />} />
-              <Route path="/narrative" element={<NarrativeRisk />} />
               <Route path="/scenarios" element={<Scenarios />} />
-              <Route path="/tokenized" element={<TokenizedAssets />} />
-              <Route path="/fiscal" element={<FiscalHealth />} />
-              <Route path="/regulatory" element={<RegulatoryIntel />} />
-              <Route path="/learning" element={<LearningEngine />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </div>

@@ -6,13 +6,14 @@ export default function AgenticMonitor() {
   const [briefing, setBriefing] = useState(null);
   const [triggers, setTriggers] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const load = () => {
     setLoading(true);
     Promise.all([
       fetch(`${API}/agentic/briefing`).then(r => r.json()),
       fetch(`${API}/agentic/review-triggers`).then(r => r.json()),
-    ]).then(([b, t]) => { setBriefing(b); setTriggers(t); setLoading(false); }).catch(() => setLoading(false));
+    ]).then(([b, t]) => { setBriefing(b); setTriggers(t); setLoading(false); }).catch(() => { setError(true); setLoading(false); });
   };
 
   useEffect(() => { load(); }, []);
@@ -37,7 +38,14 @@ export default function AgenticMonitor() {
         </div>
       </div>
 
-      {loading ? <div className="loader"><div className="spinner"/></div> : (
+      {error ? (
+        <div className="error-state">
+          <AlertTriangle size={32} />
+          <h3>Failed to load agentic data</h3>
+          <p>Could not connect to the API server.</p>
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      ) : loading ? <div className="loader"><div className="spinner"/></div> : (
         <>
           {/* Auto-Triggered Reviews */}
           {triggers?.count > 0 && (

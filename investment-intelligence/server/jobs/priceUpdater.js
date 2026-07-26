@@ -1,48 +1,60 @@
 const cron = require('node-cron');
 const { db } = require('../db');
 const { getIntraday, getFxRate } = require('../services/alphaVantage');
-const { getFundamentals } = require('../services/fmp');
+const { connectBrokerWebSocket } = require('../services/brokerWebsocket');
 
-// Tickers to auto-refresh (BSE suffix for Alpha Vantage)
+// Top 20 high-priority stocks to refresh in polling fallback mode
 const TICKERS = [
-  { av: 'INFY.BSE', fmp: 'INFY', local: 'INFY' },
-  { av: 'TATAMOTORS.BSE', fmp: 'TATAMOTORS', local: 'TATAMOTORS' },
-  { av: 'HDFC.BSE', fmp: 'HDFCBANK', local: 'HDFC' },
-  { av: 'TCS.BSE', fmp: 'TCS', local: 'TCS' },
-  { av: 'RELIANCE.BSE', fmp: 'RELIANCE', local: 'RELIANCE' },
+  { av: 'INFY.BSE', local: 'INFY' },
+  { av: 'TATAMOTORS.BSE', local: 'TATAMOTORS' },
+  { av: 'HDFC.BSE', local: 'HDFCBANK' },
+  { av: 'TCS.BSE', local: 'TCS' },
+  { av: 'RELIANCE.BSE', local: 'RELIANCE' },
 ];
 
 function startPriceUpdater() {
-  console.log('📡 Price updater scheduled (every 5 min during market hours)');
+  // 1. Attempt to launch ultra-fast WebSocket if credentials exist
+  // We grab the list of all 284 tickers from the database to stream
+  const allStocks = db.prepare('SELECT ticker FROM stocks').all();
+  const allTickers = allStocks.map(s => s.ticker);
+  
+  const isWebsocketActive = connectBrokerWebSocket(allTickers);
 
-  // Run every 5 min, Mon–Fri, 9:15–15:35 IST
+  if (isWebsocketActive) {
+    console.log('📡 [priceUpdater] High-frequency broker WebSocket activated. Suppressing slow cron polling for prices.');
+  } else {
+    console.log('📡 [priceUpdater] No broker API key found. Defaulting to 5-min REST API cron polling.');
+  }
+
+  // 2. Fallback Cron Schedule for Macro (FX) and Polling (if no WS)
   cron.schedule('*/5 9-15 * * 1-5', async () => {
-    console.log('🔄 Refreshing live market data…');
-
-    // Update FX
+    // A. Update Macro (FX) — Always runs regardless of WebSocket 
     try {
       const fx = await getFxRate();
       if (fx) {
         db.prepare(`UPDATE macro_data SET usd_inr = ? WHERE date = (SELECT MAX(date) FROM macro_data)`).run(fx.rate);
-        console.log(`  ✓ USD/INR → ${fx.rate}`);
       }
     } catch (e) {
-      console.error('  ✗ FX:', e.message);
+      console.error('  ✗ FX Update Failed:', e.message);
     }
 
-    // Update equities (stagger to respect rate limits)
+    // B. If WebSocket is running, skip this rate-limited polling
+    if (isWebsocketActive) return; 
+
+    console.log('🔄 [priceUpdater] Polling REST API for fallback price data…');
+
+    // Update equities fallback (staggering to avoid free-tier bans)
     for (let i = 0; i < TICKERS.length; i++) {
       const t = TICKERS[i];
-      // Wait 15 seconds between calls to stay within 5 calls/min
-      if (i > 0) await new Promise(r => setTimeout(r, 15000));
+      if (i > 0) await new Promise(r => setTimeout(r, 15000)); // 15s delay between REST calls
+      
       try {
         const priceInfo = await getIntraday(t.av);
         if (priceInfo) {
           db.prepare(`UPDATE stocks SET price = ?, volume = ? WHERE ticker = ?`).run(priceInfo.price, priceInfo.volume, t.local);
-          console.log(`  ✓ ${t.local} → ₹${priceInfo.price}`);
         }
       } catch (e) {
-        console.error(`  ✗ ${t.local}:`, e.message);
+        console.error(`  ✗ Data fetch failed for ${t.local}:`, e.message);
       }
     }
   }, { timezone: 'Asia/Kolkata' });

@@ -1,0 +1,29 @@
+Source: Investment_Intelligence_Blueprint_Master_v3.docx
+Output: Investment_Intelligence_Blueprint_Master_v3_polished.docx
+Edited text blocks: 85
+Review flags added: 9
+
+Change profile:
+- Tightened wording and normalized punctuation/spacing.
+- Softened promotional language to a more professional, consistent tone.
+- Standardized key labels such as USE EXISTING and BUILD NEW.
+- Added [Review] markers to forward-looking, ambitious, or hard-to-verify claims.
+
+Sections updated:
+- body: 83
+- header_footer: 2
+
+Flagged lines for review:
+- Five analytical frameworks form the analytical core. Frameworks 1–4 are the scoring engine for listed equities. Framework 5 (Alternative Data) is intended to provide a 2–3 month lead-time signal ahead of reported fundamentals. [Review] Each produces a quantified output score.
+- Every stock has a dominant narrative — the story keeping it priced where it is. When that narrative breaks, price collapses fast regardless of fundamentals. Few Indian retail tools appear to track this systematically. If executed well, it can become a differentiated capability. [Review]
+- 8 phases + Phase 3.5 (Agentic AI) — built progressively over 24–36 months. Every phase delivers a working, testable component. No big-bang deployment. Each phase explicitly lists what to use from open source and what to build custom. [Review]
+- SEBI is running tokenized securities pilots. By 2027–2028, fractional ownership of real estate, unlisted equity, and private credit will be accessible in India through regulated platforms. Building this framework early may create a meaningful first-mover advantage if these products mature as expected. [Review]
+- A major gap in many investment tools serving Indian investors. [Review] Every platform treats your portfolio in isolation, disconnected from your actual financial life. Selling good stocks at bad times due to predictable cash emergencies is the most common and costly retail mistake. This module is designed to reduce that risk.
+- 24–36 Months [Review]
+- USE EXISTING: RBI DBIE database (free public API) — policy rates, M2 money supply, liquidity data. [Review]
+- USE EXISTING: Newspaper3k (GitHub: codelucas/newspaper) + BeautifulSoup for news scraping. Fully open source. [Review]
+- ✓ DELIVERABLE: Revenue-generating SaaS. Target: 500+ paying users, ₹10L+ MRR by end of Phase 7. [Review]
+- ✓ DELIVERABLE: SEBI-licensed platform, ₹10Cr+ AUM, institutional API clients, AIF/AMC pathway established. [Review]
+- Potentially one of the highest-leverage additions to the system after the core scoring engine. [Review]
+- Could materially reduce routine dashboard checking and free more time for higher-level analysis. [Review]
+- USE EXISTING: feedparser (PyPI) — RSS feed parser for SEBI, RBI, PIB regulatory feeds. All publish RSS. [Review]

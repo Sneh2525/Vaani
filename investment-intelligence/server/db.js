@@ -4,6 +4,8 @@ const db = new Database(path.join(__dirname, 'investment.db'));
 
 // Enable WAL mode for better concurrent read performance with 300+ stocks
 db.pragma('journal_mode = WAL');
+// Checkpoint on startup to keep WAL file size under control
+db.pragma('wal_checkpoint(TRUNCATE)');
 
 function initializeDatabase() {
   db.exec(`
