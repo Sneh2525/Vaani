@@ -31,12 +31,36 @@ router.post('/', (req, res) => {
 });
 
 router.put('/:id/actual', (req, res) => {
-  const { actual_return } = req.body;
+  const { actual_return, materialized_outcome } = req.body; // materialized_outcome: 'bull', 'base', or 'bear'
   const scenario = db.prepare('SELECT * FROM outcome_scenarios WHERE id = ?').get(req.params.id);
-  // Calibration: how close was base_return to actual?
-  const calibrationScore = scenario ? Math.max(0, 10 - Math.abs(actual_return - scenario.base_return) / 5) : 5;
-  db.prepare('UPDATE outcome_scenarios SET actual_return = ?, calibration_score = ? WHERE id = ?').run(actual_return, calibrationScore, req.params.id);
-  res.json({ success: true, calibrationScore });
+  if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+
+  const outcome = materialized_outcome || (
+    // Guess based on which target actual_return is closest to
+    Math.abs(actual_return - scenario.bull_return) < Math.abs(actual_return - scenario.base_return) ? 'bull' :
+    Math.abs(actual_return - scenario.bear_return) < Math.abs(actual_return - scenario.base_return) ? 'bear' : 'base'
+  );
+
+  // Multi-outcome probabilistic Brier score: Sum((f_i - o_i)^2)
+  // f_i is predicted probability (scaled 0 to 1), o_i is 1 if it occurred else 0.
+  const bull_f = (scenario.bull_prob || 0) / 100;
+  const base_f = (scenario.base_prob || 0) / 100;
+  const bear_f = (scenario.bear_prob || 0) / 100;
+
+  const bull_o = outcome === 'bull' ? 1 : 0;
+  const base_o = outcome === 'base' ? 1 : 0;
+  const bear_o = outcome === 'bear' ? 1 : 0;
+
+  const brierScore = Math.pow(bull_f - bull_o, 2) + Math.pow(base_f - base_o, 2) + Math.pow(bear_f - bear_o, 2);
+
+  // Map Brier Score (0 is perfect prediction, 2 is worst possible error) to a 0-10 user calibration score:
+  // Calibration = 10 * (1 - BrierScore/2)
+  const calibrationScore = Math.round(10 * (1 - (brierScore / 2)) * 10) / 10;
+
+  db.prepare('UPDATE outcome_scenarios SET actual_return = ?, calibration_score = ?, notes = ? WHERE id = ?')
+    .run(actual_return, calibrationScore, `Brier Score: ${brierScore.toFixed(3)}. Materialized: ${outcome.toUpperCase()}`, req.params.id);
+
+  res.json({ success: true, calibrationScore, brierScore, outcome });
 });
 
 // Get calibration stats across all scenarios

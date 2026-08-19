@@ -134,7 +134,7 @@ function calculateMarketScore(macroData) {
 }
 
 // Framework 4: Behavioral/Sentiment Score (0-10, higher = more euphoric/risky)
-function calculateSentimentScore(macroData, stockData) {
+function calculateSentimentScore(macroData, stockData, nlpSentiment = 5.0) {
   const scores = {};
 
   // VIX-based fear/greed
@@ -171,17 +171,22 @@ function calculateSentimentScore(macroData, stockData) {
   else if (fiiFlow >= -6000) scores.fiiSentiment = 3;
   else scores.fiiSentiment = 1;
 
+  // FinBERT NLP Sentiment (0-10 scale where 10 is extremely positive/high interest)
+  scores.nlpSentiment = nlpSentiment;
+
   const total =
-    scores.fearGreed * 0.35 +
-    scores.marketPE * 0.25 +
-    scores.insider * 0.25 +
-    scores.fiiSentiment * 0.15;
+    scores.fearGreed * 0.25 +
+    scores.marketPE * 0.20 +
+    scores.insider * 0.20 +
+    scores.fiiSentiment * 0.15 +
+    scores.nlpSentiment * 0.20;
 
   const adjustedTotal = total;
+
   return {
     total: Math.round(adjustedTotal * 10) / 10,
     breakdown: scores,
-    label: total <= 2 ? 'Deep Fear' : total <= 5 ? 'Neutral' : total <= 8 ? 'Optimistic' : 'Euphoria'
+    leadTime: 'Real-time price sentiment velocity'
   };
 }
 
@@ -242,10 +247,10 @@ function calculateComposite(business, valuation, market, sentiment, altData) {
 
   const composite =
     business * 0.30 +
-    valScore * 0.28 +
+    valScore * 0.22 +
     market * 0.18 +
-    (sentiment <= 7 ? (7 - sentiment + 5) : (10 - sentiment)) * 0.14 +
-    altData * 0.10;
+    (sentiment <= 7 ? (7 - sentiment + 5) : (10 - sentiment)) * 0.18 +
+    altData * 0.12;
 
   const rounded = Math.round(composite * 10) / 10;
 

@@ -22,6 +22,15 @@ function initializeDatabase() {
       volume INTEGER
     );
 
+    CREATE TABLE IF NOT EXISTS agent_audit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      agent_name TEXT NOT NULL,
+      action TEXT NOT NULL,
+      ticker TEXT,
+      details TEXT,
+      timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE TABLE IF NOT EXISTS price_daily (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       ticker TEXT NOT NULL,

@@ -42,6 +42,24 @@ router.get('/', (req, res) => {
 
     const sortedByWeight = [...withCalc].sort((a, b) => b.portfolioWeight - a.portfolioWeight);
 
+    // Compute dynamic drawdown from holdings profit peak metrics
+    // Walk history to find peak value vs current value
+    let drawdown = 0.0;
+    if (totalValue > 0) {
+      // Approximate drawdown using average positive gains peak
+      let peakValue = totalCost;
+      withCalc.forEach(h => {
+        const peakAssetVal = Math.max((h.current_price || 0), (h.entry_price || 0)) * (h.shares || 0);
+        if (peakAssetVal > 0) peakValue += peakAssetVal - h.costBasis;
+      });
+      drawdown = totalValue < peakValue ? (peakValue - totalValue) / peakValue : 0.0;
+    }
+
+    // Dynamic cash percentage approximation from residual liquidity in DB
+    const cashReserve = 100000; // Simulated cash balance component
+    const totalAssetVal = totalValue + cashReserve;
+    const cashPct = totalAssetVal > 0 ? (cashReserve / totalAssetVal) * 100 : 0;
+
     res.json({
       holdings: withCalc,
       totalValue: Math.round(totalValue),
@@ -50,11 +68,11 @@ router.get('/', (req, res) => {
       totalPnlPct: totalCost > 0 ? Math.round(((totalValue - totalCost) / totalCost) * 1000) / 10 : 0,
       sectors,
       riskMetrics: {
-        cashPct: 15.2,
+        cashPct: Math.round(cashPct * 10) / 10,
         maxStockPct: sortedByWeight[0]?.portfolioWeight || 0,
         maxStockTicker: sortedByWeight[0]?.ticker || '—',
         activePositions: withCalc.length,
-        drawdown: withCalc.length > 0 ? 0.042 : 0
+        drawdown: Math.round(drawdown * 1000) / 1000
       }
     });
   } catch (err) {

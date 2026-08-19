@@ -1,3 +1,4 @@
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -45,6 +46,14 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().t
 // Start price updater cron job
 const { startPriceUpdater } = require('./jobs/priceUpdater');
 startPriceUpdater();
+
+// Start Alt Data Sync job
+const { startAltDataSync } = require('./jobs/altDataSync');
+startAltDataSync();
+
+// Start Agentic Monitor Job
+const { startAgenticMonitorJob } = require('./jobs/agenticMonitorJob');
+startAgenticMonitorJob();
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 Investment Intelligence API running on port ${PORT}`));

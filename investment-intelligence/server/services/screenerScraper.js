@@ -21,7 +21,7 @@ async function getScreenerFundamentals(ticker) {
       timeout: 10000 
     });
 
-    const $ = cheerio.select(response.data);
+    const $ = cheerio.load(response.data);
     const fundamentals = {};
 
     // Helper to extract a number given the label name in Screener's ratios box

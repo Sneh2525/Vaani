@@ -168,7 +168,7 @@ router.get('/summary', (req, res) => {
 });
 
 // GET /api/scores/:ticker — single stock deep analysis
-router.get('/:ticker', (req, res) => {
+router.get('/:ticker', async (req, res) => {
   try {
     const { ticker } = req.params;
     const stock = db.prepare('SELECT * FROM stocks WHERE ticker = ?').get(ticker);
@@ -191,15 +191,37 @@ router.get('/:ticker', (req, res) => {
     pes.sort((a, b) => a - b);
     const sectorMedianPE = pes[Math.floor(pes.length / 2)] || 25;
 
+    const { analyzeNewsSentiment } = require('../services/finbertService');
+    const newsItems = db.prepare('SELECT title FROM news WHERE ticker = ? ORDER BY date DESC LIMIT 8').all(ticker);
+    const headlines = newsItems.map(n => n.title);
+    
+    let nlpSentimentScore = 5.0;
+    let nlpDetails = null;
+    if (headlines.length > 0) {
+      const nlpResult = await analyzeNewsSentiment(headlines);
+      nlpSentimentScore = nlpResult.score;
+      nlpDetails = nlpResult;
+    }
+
     const business = calculateBusinessScore(fund, stock);
     const valuation = calculateValuationScore(fund, sectorMedianPE);
     const market = calculateMarketScore({ ...latestMacro, rbi_trend: 'CUTTING' });
-    const sentiment = calculateSentimentScore(latestMacro, fund);
+    const sentiment = calculateSentimentScore(latestMacro, fund, nlpSentimentScore);
     const alt = calculateAltDataScore(altData);
     const comp = calculateComposite(business.total, valuation.total, market.total, sentiment.total, alt.total);
 
     // Peer comparison
     const peers = db.prepare('SELECT s.ticker, s.name, s.market_cap, sc.composite, sc.signal FROM stocks s LEFT JOIN scores sc ON s.ticker = sc.ticker WHERE s.sector = ? AND s.ticker != ? ORDER BY s.market_cap DESC LIMIT 5').all(stock.sector, ticker);
+
+    const { generateInvestmentThesis } = require('../services/claudeService');
+    const thesis = await generateInvestmentThesis(stock, {
+      businessScore: business.total,
+      valuationScore: valuation.total,
+      marketScore: market.total,
+      sentimentScore: sentiment.total,
+      altDataScore: alt.total,
+      composite: comp.composite
+    }, fund, narrative);
 
     res.json({
       stock,
@@ -214,6 +236,8 @@ router.get('/:ticker', (req, res) => {
       scenarios,
       historicalScores,
       peers,
+      thesis,
+      nlpSentimentDetails: nlpDetails,
       redFlags: getRedFlags(fund, narrative)
     });
   } catch (err) {
