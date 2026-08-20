@@ -226,11 +226,46 @@ Create or verify `.env` in `investment-intelligence/`:
 # Server Port Configuration
 PORT=3001
 
-# API Keys (Free Tier / Demo Keys)
+# API Keys
+FYERS_APP_ID=your_fyers_app_id
+FYERS_ACCESS_TOKEN=your_fyers_access_token
+# Alpha Vantage is used for USD/INR FX only.
 ALPHA_VANTAGE_KEY=demo
-FMP_KEY=demo
 NEWSAPI_KEY=demo
 ```
+
+### Fyers market-data setup
+
+1. Create or sign in to a Fyers account and enable API access at [myapi.fyers.in](https://myapi.fyers.in/).
+2. Copy the app **App ID** and **Secret ID** into `.env` as `FYERS_APP_ID` and `FYERS_SECRET_ID`. Keep both private.
+3. Generate the FYERS login URL:
+      ```powershell
+      python fyers_auth.py
+      ```
+4. Open the printed URL, complete login, and copy only the `auth_code` value from the redirect URL.
+5. Exchange it for an access token. Do not paste the code or secret into chat:
+      ```powershell
+      python fyers_auth.py --auth-code YOUR_AUTH_CODE
+      ```
+6. Restart the backend after changing `.env`:
+      `npm run server`
+
+The backend requests NSE equity symbols as `NSE:<TICKER>-EQ` and refreshes the `stocks` table every minute during NSE market hours.
+
+### Groq AI setup
+
+1. Create or sign in to a Groq account at [console.groq.com](https://console.groq.com/keys).
+2. Create an API key and put it in `.env`:
+      ```env
+      GROQ_API_KEY=your_groq_key
+      GROQ_MODEL=openai/gpt-oss-20b
+      ```
+3. Restart the backend so it loads the new environment variables:
+      ```powershell
+      npm run server
+      ```
+
+The backend uses Groq for the investment thesis, weekly briefing, chat assistant, and research-agent analysis. Never commit or share the API key.
 
 ### 4. Running the Platform
 

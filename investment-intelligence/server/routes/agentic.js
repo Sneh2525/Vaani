@@ -1,7 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { generateWeeklyBriefing } = require('../services/claudeService');
+const { generateWeeklyBriefing, generateChatResponse } = require('../services/claudeService');
+
+// POST /api/agentic/chat — Ask Vaani Copilot about the current workspace
+router.post('/chat', async (req, res) => {
+  try {
+    const question = typeof req.body?.question === 'string' ? req.body.question.trim() : '';
+    if (!question) return res.status(400).json({ error: 'Question is required' });
+
+    const macro = db.prepare('SELECT * FROM macro_data ORDER BY date DESC LIMIT 1').get();
+    const topBuys = db.prepare("SELECT ticker, composite, signal FROM scores WHERE signal IN ('BUY', 'STRONG BUY') ORDER BY composite DESC LIMIT 8").all();
+    const portfolio = db.prepare("SELECT ticker, current_price, entry_price FROM portfolio WHERE status = 'ACTIVE'").all();
+    const answer = await generateChatResponse(question, { macro, topBuys, portfolio });
+    res.json({ answer });
+  } catch (err) {
+    console.error('Vaani Copilot error:', err);
+    res.status(500).json({ error: 'Unable to generate a response right now.' });
+  }
+});
 
 // Weekly intelligence briefing
 router.get('/briefing', async (req, res) => {

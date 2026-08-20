@@ -1,6 +1,6 @@
 const Database = require('better-sqlite3');
 const path = require('path');
-const db = new Database(path.join(__dirname, 'investment.db'));
+const db = new Database(process.env.DB_PATH || path.join(__dirname, 'investment.db'));
 
 // Enable WAL mode for better concurrent read performance with 300+ stocks
 db.pragma('journal_mode = WAL');

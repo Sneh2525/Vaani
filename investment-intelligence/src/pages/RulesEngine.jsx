@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 const MACRO_RULES = [
   { condition:'RBI Hiking (2+ consecutive hikes)', threshold:'2 hikes', action:'Reduce high-PE exposure 20%. Favour PSU banks, short-duration bonds.', category:'MACRO' },

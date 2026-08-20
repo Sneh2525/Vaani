@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, AlertTriangle, Sparkles } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 function ScoreBadge({ signal }) {
   const map = { 'STRONG BUY': 'score-strong-buy', 'BUY': 'score-buy', 'WATCH': 'score-watch', 'HOLD': 'score-watch', 'AVOID': 'score-avoid', 'SELL': 'score-sell', 'EXIT': 'score-exit' };

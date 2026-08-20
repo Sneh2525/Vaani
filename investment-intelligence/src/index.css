@@ -1504,3 +1504,13 @@ body::before {
   max-width: 400px;
   margin: 0 0 12px;
 }
+
+.copilot-card { border-color: rgba(124, 92, 255, 0.24); }
+.copilot-status { display: inline-flex; align-items: center; gap: 6px; color: var(--accent-green); font-size: 10px; font-family: 'JetBrains Mono', monospace; }
+.copilot-messages { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; margin-bottom: 14px; }
+.copilot-message { max-width: 82%; padding: 10px 13px; border-radius: 10px; font-size: 12px; line-height: 1.55; white-space: pre-wrap; }
+.copilot-assistant { align-self: flex-start; color: var(--text-secondary); background: rgba(124, 92, 255, 0.08); border: 1px solid rgba(124, 92, 255, 0.14); }
+.copilot-user { align-self: flex-end; color: white; background: var(--accent-purple); }
+.copilot-form { display: flex; gap: 8px; }
+.copilot-form .form-input { flex: 1; }
+.copilot-form .btn { padding: 9px 13px; }

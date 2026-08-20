@@ -1,25 +1,31 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Lazy-initialize client to prevent crash if key is missing during startup
-let clientInstance = null;
-function getClient() {
-  if (!clientInstance) {
-    const apiKey = process.env.ANTHROPIC_API_KEY || 'demo_key_placeholder';
-    clientInstance = new Anthropic({ apiKey });
-  }
-  return clientInstance;
+async function askGroq(prompt) {
+  if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY is missing from .env');
+
+  const response = await fetch(GROQ_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GROQ_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!response.ok) throw new Error(`Groq request failed: ${response.status} ${await response.text()}`);
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || 'Groq returned an empty response.';
 }
 
 /**
  * Generate a structured investment thesis for a stock based on current scores, fundamentals, and narrative risk factors.
  */
 async function generateInvestmentThesis(stock, scores, fundamentals, narrativeRisk) {
-  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === 'demo') {
-    return `[Mock Thesis for ${stock.name}] Strong structural growth story in ${stock.sector || 'the industry'} supported by a solid BSS score of ${scores.businessScore || 7}. Valuation score is ${scores.valuationScore || 5} yielding a composite score of ${scores.composite || 6}. Risk indicators remain normal. Connect a valid ANTHROPIC_API_KEY to see live Claude intelligence.`;
-  }
-
   try {
-    const anthropic = getClient();
     const prompt = `Analyze this stock and generate a professional, structured investment thesis:
 Stock: ${stock.name} (${stock.ticker})
 Sector: ${stock.sector}
@@ -50,15 +56,9 @@ Provide a concise, 3-paragraph institutional thesis:
 2. Catalyst/Moat Drivers: What drives growth & margin of safety.
 3. Narrative & Risk Flags: What elements could invalidate this investment thesis.`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 600,
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    return response.content[0].text;
+    return await askGroq(prompt);
   } catch (error) {
-    console.error('Claude API Error in generateInvestmentThesis:', error);
+    console.error('Groq Error in generateInvestmentThesis:', error);
     return `Failed to generate thesis due to API error. Stock: ${stock.name}. Core Score: ${scores.composite}.`;
   }
 }
@@ -67,16 +67,7 @@ Provide a concise, 3-paragraph institutional thesis:
  * Generate a comprehensive weekly intelligence briefing for portfolio and market conditions.
  */
 async function generateWeeklyBriefing(macro, topBuys, narrativeCracks, portfolioSnapshot) {
-  if (!process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === 'demo') {
-    return [
-      `📊 Weekly Market Briefing: RBI rate stands at ${macro?.rbi_rate || 'N/A'}% and VIX is ${macro?.india_vix || 'N/A'}.`,
-      `💼 Portfolio performance is stable with ${portfolioSnapshot.length} holdings.`,
-      `💡 Watchlist highlight: ${topBuys[0]?.name || 'Nifty Stocks'} remains highly rated.`
-    ];
-  }
-
   try {
-    const anthropic = getClient();
     const prompt = `Synthesize a weekly intelligence briefing for an investment fund manager:
 Macro Variables:
 - RBI Rate: ${macro?.rbi_rate || 'N/A'}%
@@ -95,20 +86,29 @@ ${portfolioSnapshot.map(p => `- ${p.name} (${p.ticker}): PnL ${p.pnl}%`).join('\
 
 Produce 3 distinct bullet points summarizing key macro trends, portfolio risks, and actionable watchlist picks.`;
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 500,
-      messages: [{ role: 'user', content: prompt }]
-    });
-
-    return response.content[0].text.split('\n').filter(line => line.trim().length > 0);
+    return (await askGroq(prompt)).split('\n').filter(line => line.trim().length > 0);
   } catch (error) {
-    console.error('Claude API Error in generateWeeklyBriefing:', error);
+    console.error('Groq Error in generateWeeklyBriefing:', error);
     return ['Error generating intelligence briefing. Please verify system logs.'];
   }
 }
 
+async function generateChatResponse(question, context = {}) {
+  const prompt = `You are Vaani Copilot, an investment research assistant for Indian equities.
+Answer the user's question clearly and conservatively. Use only the supplied workspace context, state uncertainty when data is missing, and never present a prediction as a certainty.
+
+Workspace context:
+${JSON.stringify(context, null, 2)}
+
+User question: ${question}
+
+Give a concise answer with a direct conclusion, supporting evidence, and one risk or next step.`;
+
+  return await askGroq(prompt);
+}
+
 module.exports = {
   generateInvestmentThesis,
-  generateWeeklyBriefing
+  generateWeeklyBriefing,
+  generateChatResponse
 };

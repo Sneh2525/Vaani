@@ -1,24 +1,7 @@
-const { ChatAnthropic } = require('@langchain/anthropic');
 const { db } = require('../db');
-
-// Setup base Claude model using ChatAnthropic
-let chatModelInstance = null;
-function getChatModel() {
-  if (!chatModelInstance) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey || apiKey === 'demo') return null;
-    try {
-      chatModelInstance = new ChatAnthropic({
-        apiKey,
-        modelName: 'claude-3-5-sonnet-20241022',
-        maxTokens: 500
-      });
-    } catch (e) {
-      console.warn('⚠️ ChatAnthropic init failed (check API key):', e.message);
-    }
-  }
-  return chatModelInstance;
-}
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 /**
  * Audit log helper
@@ -86,29 +69,25 @@ async function runResearchAgent(ticker) {
   logAgentAction('ResearchAgent', 'INITIATE_RESEARCH', ticker, `Analyzing thesis profile for ${stock.name}`);
 
   try {
-    const isMock = !process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY === 'demo';
-    let analysis;
+    if (!GROQ_API_KEY) throw new Error('GROQ_API_KEY is missing from .env');
 
-    if (isMock) {
-      analysis = `[Agentic Research Mode] ${stock.name} is classified under ${stock.sector} sector with a composite rating of ${scores.composite}. Standard compliance rules pass successfully.`;
-    } else {
-      const chat = getChatModel();
-      if (!chat) {
-        analysis = `[Agentic Research Mode — No API Key] ${stock.name}: Composite ${scores.composite}. Add ANTHROPIC_API_KEY to .env for live analysis.`;
-      } else {
-        const response = await chat.invoke([
-          {
-            role: 'system',
-            content: 'You are an elite Buy-side Research Analyst specializing in Indian equity markets.'
-          },
-          {
-            role: 'user',
-            content: `Perform a short, professional SWOT analysis of ${stock.name} (${stock.ticker}) with an IOS Composite Score of ${scores.composite}/10. Keep the response clean and under 3 paragraphs.`
-          }
-        ]);
-        analysis = response.content;
-      }
-    }
+    const response = await fetch(GROQ_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: 'You are an elite Buy-side Research Analyst specializing in Indian equity markets.' },
+          { role: 'user', content: `Perform a short, professional SWOT analysis of ${stock.name} (${stock.ticker}) with an IOS Composite Score of ${scores.composite}/10. Keep the response clean and under 3 paragraphs.` }
+        ]
+      })
+    });
+    if (!response.ok) throw new Error(`Groq request failed: ${response.status} ${await response.text()}`);
+    const data = await response.json();
+    const analysis = data.choices?.[0]?.message?.content || 'Groq returned an empty response.';
 
     logAgentAction('ResearchAgent', 'ANALYSIS_COMPLETED', ticker, analysis);
     return { analysis };

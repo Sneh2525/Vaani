@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 export default function DecisionNotes() {
   const [notes, setNotes] = useState([]);

@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Zap, RefreshCw, AlertTriangle } from 'lucide-react';
-const API = 'http://localhost:3001/api';
+import { Zap, RefreshCw, AlertTriangle, Send, MessageCircle } from 'lucide-react';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 export default function AgenticMonitor() {
   const [briefing, setBriefing] = useState(null);
   const [triggers, setTriggers] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatMessages, setChatMessages] = useState([{ role: 'assistant', text: 'Ask me about your watchlist, portfolio risk, macro conditions, or the signals on this page.' }]);
 
   const load = () => {
     setLoading(true);
@@ -18,6 +21,28 @@ export default function AgenticMonitor() {
 
   useEffect(() => { load(); }, []);
 
+  const askCopilot = async (event) => {
+    event.preventDefault();
+    const question = chatInput.trim();
+    if (!question || chatLoading) return;
+    setChatInput('');
+    setChatMessages(messages => [...messages, { role: 'user', text: question }]);
+    setChatLoading(true);
+    try {
+      const response = await fetch(`${API}/agentic/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+      });
+      const data = await response.json();
+      setChatMessages(messages => [...messages, { role: 'assistant', text: data.answer || data.error || 'No response received.' }]);
+    } catch {
+      setChatMessages(messages => [...messages, { role: 'assistant', text: 'I could not reach the intelligence service. Check that the API server is running.' }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
   const urgencyColor = { CRITICAL:'var(--accent-red)', HIGH:'var(--accent-amber)', MEDIUM:'var(--accent-blue)' };
   const sentColor = { CALM:'var(--accent-green)', MODERATE:'var(--accent-amber)', STRESSED:'var(--accent-red)' };
 
@@ -25,17 +50,31 @@ export default function AgenticMonitor() {
     <div>
       <div className="section-header">
         <div>
-          <div className="section-title">⚡ Agentic Monitor — Phase 3.5</div>
+          <div className="section-title">⚡ Agentic Monitor</div>
           <div className="section-sub">Autonomous watchlist monitoring · Auto-triggered thesis reviews · Weekly intelligence briefing</div>
         </div>
         <button className="btn btn-primary" onClick={load}><RefreshCw size={13}/> Refresh</button>
       </div>
 
-      {/* Explainer */}
-      <div className="card" style={{ marginBottom:20, background:'rgba(124,92,255,0.05)', border:'1px solid rgba(124,92,255,0.2)' }}>
-        <div style={{ fontSize:12, lineHeight:1.8, color:'var(--text-secondary)' }}>
-          <strong style={{ color:'var(--accent-purple)' }}>This is Phase 3.5</strong> — sits between your current Phase 3 (Rules Engine) and Phase 4 (Sentiment NLP). The agentic layer watches your portfolio 24/7 against your IF-THEN rules, triggers thesis reviews automatically when conditions are breached, and generates a weekly intelligence briefing. Buildable today with LangChain + Claude API.
+      <div className="card copilot-card" style={{ marginBottom:20 }}>
+        <div className="card-header">
+          <div>
+            <div className="card-title"><MessageCircle size={16} /> Vaani Intelligence Hub</div>
+            <div className="card-subtitle">Ask questions grounded in your live workspace data</div>
+          </div>
         </div>
+        <div className="copilot-messages">
+          {chatMessages.map((message, index) => (
+            <div key={`${message.role}-${index}`} className={`copilot-message copilot-${message.role}`}>
+              {message.text}
+            </div>
+          ))}
+          {chatLoading && <div className="copilot-message copilot-assistant">Thinking...</div>}
+        </div>
+        <form className="copilot-form" onSubmit={askCopilot}>
+          <input className="form-input" value={chatInput} onChange={event => setChatInput(event.target.value)} placeholder="e.g. What is the biggest risk in my portfolio?" aria-label="Ask Vaani Intelligence Hub" />
+          <button className="btn btn-primary" type="submit" disabled={chatLoading || !chatInput.trim()} aria-label="Send question"><Send size={14} /></button>
+        </form>
       </div>
 
       {error ? (

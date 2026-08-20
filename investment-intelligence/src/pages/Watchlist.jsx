@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 function ScoreBadge({ signal }) {
   const map = { 'STRONG BUY': 'score-strong-buy', 'BUY': 'score-buy', 'WATCH': 'score-watch', 'AVOID': 'score-avoid', 'EXIT': 'score-exit' };

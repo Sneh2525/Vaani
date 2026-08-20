@@ -54,3 +54,14 @@ The primary platform codebase is located inside the [`investment-intelligence`](
 * Detailed Web Application Documentation: [`investment-intelligence/README.md`](file:///c:/Users/Sneh%20Patel/Desktop/Y/investment-intelligence/README.md)
 * Blueprint Gap Analysis: [`blueprint_gap_analysis.txt`](file:///c:/Users/Sneh%20Patel/Desktop/Y/blueprint_gap_analysis.txt)
 * Blueprint Text Extraction: [`bp_text.txt`](file:///c:/Users/Sneh%20Patel/Desktop/Y/bp_text.txt)
+
+## 🌍 Host on Render
+
+The repository includes [`render.yaml`](render.yaml) for a single-service deployment. It builds the React client, serves it from Express, and keeps the API on the same domain.
+
+1. Push this repository to GitHub.
+2. In Render, choose **New + → Blueprint** and connect the repository.
+3. Add the secret environment variables requested by the blueprint, especially `ANTHROPIC_API_KEY`, `ALPHA_VANTAGE_KEY`, `FMP_KEY`, and `NEWSAPI_KEY`.
+4. Deploy. Render will build from `investment-intelligence/` and expose the app at its generated URL.
+
+The blueprint provisions a persistent disk for `server/investment.db`. Without that disk, SQLite data will be lost when the service is redeployed.

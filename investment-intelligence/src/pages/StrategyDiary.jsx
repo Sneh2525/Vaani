@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Tag, AlertTriangle } from 'lucide-react';
-const API = 'http://localhost:3001/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 const TAGS = ['MACRO','SECTOR','SIGNAL','FRAMEWORK','MISTAKE','MOOD','INSIGHT'];
 const TAG_COLORS = { MACRO:'tag-blue', SECTOR:'tag-purple', SIGNAL:'tag-amber', FRAMEWORK:'tag-cyan', MISTAKE:'tag-red', MOOD:'tag-green', INSIGHT:'tag-green' };

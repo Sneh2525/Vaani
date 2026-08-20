@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: investment-intelligence
+    runtime: node
+    rootDir: investment-intelligence
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /var/data/investment.db
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
+      - key: FYERS_APP_ID
+        sync: false
+      - key: FYERS_SECRET_ID
+        sync: false
+      - key: FYERS_ACCESS_TOKEN
+        sync: false
+      - key: ALPHA_VANTAGE_KEY
+        sync: false
+      - key: NEWSAPI_KEY
+        sync: false
+    disk:
+      name: investment-intelligence-db
+      mountPath: /var/data
+      sizeGB: 1

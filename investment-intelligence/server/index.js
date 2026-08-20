@@ -43,6 +43,11 @@ app.use('/api/news', newsRouter);
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
+// Serve the production React build from the same origin as the API.
+const clientDist = path.join(__dirname, '../dist');
+app.use(express.static(clientDist));
+app.get(/^(?!\/api).*/, (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+
 // Start price updater cron job
 const { startPriceUpdater } = require('./jobs/priceUpdater');
 startPriceUpdater();
