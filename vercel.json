@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm install --prefix investment-intelligence",
+  "buildCommand": "npm run build --prefix investment-intelligence",
+  "outputDirectory": "investment-intelligence/dist",
+  "framework": "vite"
+}
