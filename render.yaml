@@ -9,8 +9,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DB_PATH
-        value: /var/data/investment.db
       - key: GROQ_API_KEY
         sync: false
       - key: GROQ_MODEL
@@ -25,7 +23,3 @@ services:
         sync: false
       - key: NEWSAPI_KEY
         sync: false
-    disk:
-      name: investment-intelligence-db
-      mountPath: /var/data
-      sizeGB: 1

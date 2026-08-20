@@ -103,7 +103,7 @@ Create a key at [console.groq.com/keys](https://console.groq.com/keys), set `GRO
 
 ### Backend on Render
 
-[`render.yaml`](render.yaml) provisions the Node/Express service, its persistent SQLite disk, and the required environment-variable slots.
+[`render.yaml`](render.yaml) provisions the Node/Express service and the required environment-variable slots for Render's free web-service tier.
 
 1. In Render, choose **New -> Blueprint**.
 2. Select this GitHub repository and the `main` branch.
@@ -111,6 +111,8 @@ Create a key at [console.groq.com/keys](https://console.groq.com/keys), set `GRO
 4. Deploy and verify `https://your-render-service.onrender.com/api/health`.
 
 Keep all provider secrets on Render. Do not put them in Vercel or frontend code.
+
+The free Render service has an ephemeral filesystem and sleeps after inactivity. This means the local SQLite database can reset after a restart or redeploy. Use a hosted database such as Supabase Postgres when you need durable production data.
 
 ### Frontend on Vercel
 
@@ -126,7 +128,7 @@ VITE_API_URL=https://your-render-service.onrender.com/api
 
 4. Deploy or redeploy the latest `main` commit.
 
-Vercel hosts the frontend; Render hosts the Express API and SQLite database.
+Vercel hosts the frontend; Render hosts the Express API. On the free setup, SQLite is suitable for demos but is not durable storage.
 
 ## Project Layout
 
